@@ -170,8 +170,10 @@ namespace TGC.Group.Model
             Jugador tanque = new Jugador("Tanque", escena.Meshes[4], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
 
             ruedas = new List<Rueda>();
-            ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda1"), new TGCVector3(3.5f, -.5f, 4)));
-            ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda1"), new TGCVector3(-3.5f, -.5f, 4)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda"), new TGCVector3(3.5f, -.5f, 4)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda"), new TGCVector3(-3.5f, -.5f, 4)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda"), new TGCVector3(2.5f, -1f, -5), new TGCVector3(.6f,.6f,.6f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda"), new TGCVector3(-2.5f, -1f, -5), new TGCVector3(.6f, .6f, .6f)));
             Jugador tractor = new Jugador("Tractor", escena.Meshes[5], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
 
             jugadores.Add(auto);
