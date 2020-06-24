@@ -24,6 +24,7 @@ namespace TGC.Group.Model
         private Pasto pasto;
         private TgcSkyBox skyBox;
         private Luz sol;
+        private bool dia;
 
         //Objetos de juego
         private List<Jugador> jugadores = new List<Jugador>();
@@ -51,8 +52,9 @@ namespace TGC.Group.Model
         // 2D
         private UIEscenaJuego ui;
 
-        public EscenaJuego(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input, List<Jugador> jugadores, Jugador jugadorActivo) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
+        public EscenaJuego(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input, List<Jugador> jugadores, Jugador jugadorActivo, bool dia = true) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
         {
+            this.dia = dia;
             initFisica();
 
             initMeshes();
@@ -119,13 +121,13 @@ namespace TGC.Group.Model
             skyBox = new TgcSkyBox();
             skyBox.Center = new TGCVector3(0, 500, 0);
             skyBox.Size = new TGCVector3(10000, 10000, 10000);
-            var texturesPath = MediaDir + "Textures\\SkyBox LostAtSeaNight\\";
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Up, texturesPath + "Nochelostatseaday_up.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Down, texturesPath + "Nochelostatseaday_dn.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Left, texturesPath + "Nochelostatseaday_lf.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Right, texturesPath + "Nochelostatseaday_rt.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Front, texturesPath + "Nochelostatseaday_bk.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "Nochelostatseaday_ft.jpg");
+            var texturesPath = MediaDir + "Textures\\SkyBox LostAtSea" + (dia ? "Day\\" : "Night\\");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Up, texturesPath + "lostatseaday_up.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Down, texturesPath + "lostatseaday_dn.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Left, texturesPath + "lostatseaday_lf.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Right, texturesPath + "lostatseaday_rt.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Front, texturesPath + "lostatseaday_bk.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "lostatseaday_ft.jpg");
             skyBox.Init();
 
             //cargar escena

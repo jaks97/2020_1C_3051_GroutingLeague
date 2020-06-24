@@ -81,6 +81,7 @@ namespace TGC.Group.Model
             INICIAR,
             CONTROLES,
             CAMBIARVEHICULO,
+            HORA,
             SALIR
         }
 
@@ -89,6 +90,8 @@ namespace TGC.Group.Model
         private TgcSkyBox skyBox;
         private List<Boton> botones = new List<Boton>();
         private int botonSeleccionado;
+
+        private bool dia = true;
 
         public int BotonSeleccionado
         {
@@ -134,12 +137,18 @@ namespace TGC.Group.Model
             botones.Add(new Boton(menuItem, menuItemSelec, "Iniciar", 0, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "Controles", 1, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "< Cambiar vehículo >", 2, drawer2D));
-            botones.Add(new Boton(menuItem, menuItemSelec, "Salir", 3, drawer2D));
+            botones.Add(new Boton(menuItem, menuItemSelec, "Dia", 3, drawer2D));
+            botones.Add(new Boton(menuItem, menuItemSelec, "Salir", 4, drawer2D));
 
+            initSkyBox();
+        }
+
+        private void initSkyBox()
+        {
             skyBox = new TgcSkyBox();
             skyBox.Center = new TGCVector3(0, 500, 0);
             skyBox.Size = new TGCVector3(10000, 10000, 10000);
-            var texturesPath = MediaDir + "Textures\\SkyBox LostAtSeaDay\\";
+            var texturesPath = MediaDir + "Textures\\SkyBox LostAtSea" + (dia ? "Day\\" : "Night\\");
             skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Up, texturesPath + "lostatseaday_up.jpg");
             skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Down, texturesPath + "lostatseaday_dn.jpg");
             skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Left, texturesPath + "lostatseaday_lf.jpg");
@@ -198,7 +207,7 @@ namespace TGC.Group.Model
                 {
                     case Items.INICIAR:
                         mp3Player.closeFile();
-                        return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadores[jugadorActivo]));
+                        return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadores[jugadorActivo], dia));
                     case Items.CONTROLES:
                         return CambiarEscena(new EscenaControles(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
                     case Items.SALIR:
@@ -221,6 +230,13 @@ namespace TGC.Group.Model
                         JugadorActivo--;
                         tiempoMovido = 0.2f;
                     }
+                }
+                else if ((Items)botonSeleccionado == Items.HORA && (Input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) || Input.keyDown(Key.Return)))
+                {
+                    dia = !dia;
+                    botones[3].texto.Texto = dia ? "Dia" : "Noche";
+                    initSkyBox();
+                    tiempoMovido = 0.2f;
                 }
                 if (Input.keyDown(Key.UpArrow))
                 {
