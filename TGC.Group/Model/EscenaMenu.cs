@@ -160,10 +160,19 @@ namespace TGC.Group.Model
 
         private void initJugadores(TgcScene escena)
         {
-            Jugador auto = new Jugador("Auto", escena.Meshes[2], escena.getMeshByName("Box_1"), new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
-            Jugador tractor = new Jugador("Tractor", escena.Meshes[5], escena.getMeshByName("Box_1"), new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
-            Jugador patrullero = new Jugador("Patrullero", escena.Meshes[3], escena.getMeshByName("Box_1"), new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
-            Jugador tanque = new Jugador("Tanque", escena.Meshes[4], escena.getMeshByName("Box_1"), new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
+            List<Rueda> ruedas = new List<Rueda>();
+            ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(4.2f, -.5f, 5)));
+            ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(4.2f, -.5f, -4.6f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(-4.5f, -.5f, 5)));
+            ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(-4.5f, -.5f, -4.6f)));
+            Jugador auto = new Jugador("Auto", escena.Meshes[2], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
+            Jugador patrullero = new Jugador("Patrullero", escena.Meshes[3], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
+            Jugador tanque = new Jugador("Tanque", escena.Meshes[4], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
+
+            ruedas = new List<Rueda>();
+            ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda1"), new TGCVector3(3.5f, -.5f, 4)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda1"), new TGCVector3(-3.5f, -.5f, 4)));
+            Jugador tractor = new Jugador("Tractor", escena.Meshes[5], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
 
             jugadores.Add(auto);
             jugadores.Add(tractor);

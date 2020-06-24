@@ -1,6 +1,7 @@
 ﻿using BulletSharp.Math;
 using Microsoft.DirectX.DirectInput;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using TGC.Core.BulletPhysics;
 using TGC.Core.Input;
@@ -18,7 +19,7 @@ namespace TGC.Group.Model
         private TGCVector3 rotacionInicial;
         private const float VELOCIDAD_LINEAL_MAX = 100;
         private const float VELOCIDAD_ANGULAR_MAX = 5;
-        TgcMesh rueda;
+        List<Rueda> ruedas;
 
         private Boolean EnElAire => translation.Y - (AABB.calculateSize().Y / 2f) > .1f;
 
@@ -32,7 +33,7 @@ namespace TGC.Group.Model
             private set => turbo = Math.Min(value, 100);
         }
 
-        public Jugador(String nombre, TgcMesh mesh, TgcMesh rueda, TGCVector3 translation=new TGCVector3(), TGCVector3 rotation=new TGCVector3(), float angle=0) :base(mesh,translation,rotation,angle)
+        public Jugador(String nombre, TgcMesh mesh, List<Rueda> ruedas, TGCVector3 translation=new TGCVector3(), TGCVector3 rotation=new TGCVector3(), float angle=0) :base(mesh,translation,rotation,angle)
         {
             this.nombre = nombre;
             inputAvanzar = Key.UpArrow;
@@ -42,7 +43,7 @@ namespace TGC.Group.Model
             cuerpo = BulletRigidBodyFactory.Instance.CreateBox(Mesh.BoundingBox.calculateSize()  * 0.5f, 2f, new TGCVector3(translation), rotation.X, rotation.Y, rotation.Z, 1f, true);
             cuerpo.SetSleepingThresholds(0, 0);
 
-            this.rueda = rueda;
+            this.ruedas = ruedas;
 
             posicionInicial = new TGCVector3(translation);
             rotacionInicial = new TGCVector3(rotation);
@@ -106,7 +107,6 @@ namespace TGC.Group.Model
                 cuerpo.ApplyCentralForce(new Vector3(0, 1000, 0));
             }
 
-            rotacionRueda += nuevaVel.Length * 0.01f * -Math.Sign(velocidadLineal.Dot(Frente));
         }
 
         private void HandleInputAire(TgcD3dInput input)
@@ -165,17 +165,26 @@ namespace TGC.Group.Model
                 Turbo += turbo.Usar();
         }
 
+        public override void Update(float elapsedTime)
+        {
+            base.Update(elapsedTime);
+            foreach (var rueda in ruedas)
+                rueda.Update(cuerpo.LinearVelocity.Length * 0.01f * -Math.Sign(cuerpo.LinearVelocity.Dot(Frente)));
+        }
+
         public override void Render()
         {
             base.Render();
-            rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(4.2f, -.5f, 5) * new TGCMatrix(cuerpo.WorldTransform);
+            foreach (var rueda in ruedas)
+                rueda.Render(Mesh.Transform);
+            /*rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(4.2f, -.5f, 5) * new TGCMatrix(cuerpo.WorldTransform);
             rueda.Render();
             rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(4.2f, -.5f, -4.6f) * new TGCMatrix(cuerpo.WorldTransform);
             rueda.Render();
             rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(-4.5f, -.5f, 5) * new TGCMatrix(cuerpo.WorldTransform);
             rueda.Render();
             rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(-4.5f, -.5f, -4.6f) * new TGCMatrix(cuerpo.WorldTransform);
-            rueda.Render();
+            rueda.Render();*/
         }
     }
 }

@@ -124,6 +124,7 @@
     <Compile Include="Model\ObjetoJuego.cs" />
     <Compile Include="Model\Paredes.cs" />
     <Compile Include="Model\Pasto.cs" />
+    <Compile Include="Model\Rueda.cs" />
     <Compile Include="Model\Turbo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -38,7 +38,7 @@ namespace TGC.Group.Model
 
         private int golequipo1 = 0;
         private int golequipo2 = 0;
-        private double tiempoRestante = 30;
+        private double tiempoRestante = 300;
         private AnimacionGol animacionGol;
         //private ParticleEmitter emitter;
 
