@@ -3,12 +3,14 @@ using TGC.Core.Direct3D;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.Text;
+using TGC.Core.Sound;
 
 namespace TGC.Group.Model
 {
     class EscenaGameOver : Escena
     {
         CustomSprite gameOver;
+        private TgcMp3Player mp3Gameover;
 
         public EscenaGameOver(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
         {
@@ -17,6 +19,9 @@ namespace TGC.Group.Model
 
             gameOver.Scaling = new TGCVector2((float)D3DDevice.Instance.Width / gameOver.Bitmap.Width, (float)D3DDevice.Instance.Height / gameOver.Bitmap.Height);
             gameOver.Position = new TGCVector2(0, 0);
+            mp3Gameover = new TgcMp3Player();
+            mp3Gameover.FileName = MediaDir + "Music\\GameOver.mp3";
+            mp3Gameover.play(true);
         }
         public override void Dispose()
         {

@@ -12,6 +12,9 @@ using System;
 using TGC.Group.Model._2D;
 using System.Linq;
 using TGC.Core.Shaders;
+using TGC.Core.Sound;
+
+
 
 namespace TGC.Group.Model
 {
@@ -20,6 +23,7 @@ namespace TGC.Group.Model
         private HUDSprite menuItem;
         private HUDSprite menuItemSelec;
         public HUDTexto texto;
+        
 
         public Boton(CustomBitmap sprite, CustomBitmap spriteSelec, string texto, int indice, Drawer2D drawer)
         {
@@ -107,6 +111,8 @@ namespace TGC.Group.Model
         }
 
         private Luz sol;
+        private TgcMp3Player mp3Player;
+       
 
         public EscenaMenu(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
         {
@@ -116,6 +122,9 @@ namespace TGC.Group.Model
             paredes = escena.getMeshByName("Box_5");
             Camera.SetCamera(new TGCVector3(20, 10, -20), new TGCVector3(0, 5, -7));
             initJugadores(escena);
+            mp3Player = new TgcMp3Player();
+            mp3Player.FileName= MediaDir + "Music\\Inicio.mp3";
+            mp3Player.play(true);
 
             sol = new Luz(Color.White, new TGCVector3(0, 30, -50));
 
@@ -188,6 +197,7 @@ namespace TGC.Group.Model
                 switch ((Items)botonSeleccionado)
                 {
                     case Items.INICIAR:
+                        mp3Player.closeFile();
                         return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadores[jugadorActivo]));
                     case Items.CONTROLES:
                         return CambiarEscena(new EscenaControles(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
