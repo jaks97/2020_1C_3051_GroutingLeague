@@ -202,6 +202,7 @@ namespace TGC.Group.Model
                     case Items.CONTROLES:
                         return CambiarEscena(new EscenaControles(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
                     case Items.SALIR:
+                        mp3Player.closeFile();
                         Form.GameForm.ActiveForm.Close();
                         break;
                 }

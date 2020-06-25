@@ -39,6 +39,7 @@ namespace TGC.Group.Model
         {
             if (Input.keyDown(Microsoft.DirectX.DirectInput.Key.Space))
             {
+                mp3Gameover.closeFile();
                 return CambiarEscena(new EscenaMenu(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
             }
             return this;

@@ -8,6 +8,7 @@ using TGC.Core.Camara;
 using TGC.Core.Direct3D;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
+using TGC.Core.Particle;
 using TGC.Core.SceneLoader;
 using TGC.Core.Shaders;
 using TGC.Core.Terrain;
@@ -37,6 +38,7 @@ namespace TGC.Group.Model
         private int golequipo2 = 0;
         private double tiempoRestante = 30;
         private AnimacionGol animacionGol;
+        //private ParticleEmitter emitter;
 
         //Objetos de fisica
         protected DiscreteDynamicsWorld dynamicsWorld;
@@ -117,13 +119,13 @@ namespace TGC.Group.Model
             skyBox = new TgcSkyBox();
             skyBox.Center = new TGCVector3(0, 500, 0);
             skyBox.Size = new TGCVector3(10000, 10000, 10000);
-            var texturesPath = MediaDir + "Textures\\SkyBox LostAtSeaDay\\";
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Up, texturesPath + "lostatseaday_up.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Down, texturesPath + "lostatseaday_dn.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Left, texturesPath + "lostatseaday_lf.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Right, texturesPath + "lostatseaday_rt.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Front, texturesPath + "lostatseaday_bk.jpg");
-            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "lostatseaday_ft.jpg");
+            var texturesPath = MediaDir + "Textures\\SkyBox LostAtSeaNight\\";
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Up, texturesPath + "Nochelostatseaday_up.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Down, texturesPath + "Nochelostatseaday_dn.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Left, texturesPath + "Nochelostatseaday_lf.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Right, texturesPath + "Nochelostatseaday_rt.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Front, texturesPath + "Nochelostatseaday_bk.jpg");
+            skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "Nochelostatseaday_ft.jpg");
             skyBox.Init();
 
             //cargar escena
@@ -238,6 +240,7 @@ namespace TGC.Group.Model
                 if (arcos[1].CheckCollideWith(pelota))
                 {
                     golequipo2++;
+                    //emitter = new ParticleEmitter(MediaDir + "Texturas\\Particles\\fuego.png", 10);
                     animacionGol.AnimarGol(jugadores, pelota.Translation);
                 }
             }
