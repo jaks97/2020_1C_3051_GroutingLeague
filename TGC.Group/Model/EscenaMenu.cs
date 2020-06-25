@@ -166,7 +166,6 @@ namespace TGC.Group.Model
             ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(-4.5f, -.5f, 5)));
             ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(-4.5f, -.5f, -4.6f)));
             Jugador auto = new Jugador("Auto", escena.Meshes[2], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
-            Jugador tanque = new Jugador("Tanque", escena.Meshes[4], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
 
             ruedas = new List<Rueda>();
             ruedas.Add(new Rueda(escena.getMeshByName("TractorRueda"), new TGCVector3(3.5f, -.5f, 4)));
@@ -181,6 +180,15 @@ namespace TGC.Group.Model
             ruedas.Add(new Rueda(escena.getMeshByName("PatrulleroRueda"), new TGCVector3(-3.5f, -1.7f, 7.2f)));
             ruedas.Add(new Rueda(escena.getMeshByName("PatrulleroRueda"), new TGCVector3(-3.5f, -1.7f, -7f)));
             Jugador patrullero = new Jugador("Patrullero", escena.Meshes[3], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
+
+            ruedas = new List<Rueda>();
+            ruedas.Add(new Rueda(escena.getMeshByName("TanqueRueda"), new TGCVector3(4.3f, -2.5f, 5.7f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TanqueRueda"), new TGCVector3(4.3f, -2.5f, -5.3f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TanqueRueda"), new TGCVector3(-4.3f, -2.5f, 5.7f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TanqueRueda"), new TGCVector3(-4.3f, -2.5f, -5.3f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TanqueRueda"), new TGCVector3(-4.3f, -2.5f, 0.2f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("TanqueRueda"), new TGCVector3(4.3f, -2.5f, 0.2f)));
+            Jugador tanque = new Jugador("Tanque", escena.Meshes[4], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
 
             jugadores.Add(auto);
             jugadores.Add(tractor);
