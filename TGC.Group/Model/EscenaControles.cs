@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +34,8 @@ namespace TGC.Group.Model
 
         public override void Render()
         {
+            D3DDevice.Instance.Device.Clear(Microsoft.DirectX.Direct3D.ClearFlags.Target | Microsoft.DirectX.Direct3D.ClearFlags.ZBuffer, Color.White, 1.0f, 0);
+            D3DDevice.Instance.Device.BeginScene();
             drawer2D.BeginDrawSprite();
             drawer2D.DrawSprite(unSprite);
             drawer2D.EndDrawSprite();

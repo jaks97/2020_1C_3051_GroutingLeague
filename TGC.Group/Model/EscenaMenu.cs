@@ -243,6 +243,7 @@ namespace TGC.Group.Model
                         mp3Player.closeFile();
                         return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadores[jugadorActivo], dia));
                     case Items.CONTROLES:
+                        mp3Player.closeFile();
                         return CambiarEscena(new EscenaControles(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
                     case Items.SALIR:
                         mp3Player.closeFile();
