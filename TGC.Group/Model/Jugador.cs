@@ -19,7 +19,7 @@ namespace TGC.Group.Model
         private TGCVector3 rotacionInicial;
         private const float VELOCIDAD_LINEAL_MAX = 100;
         private const float VELOCIDAD_ANGULAR_MAX = 5;
-        List<Rueda> ruedas;
+        public List<Rueda> ruedas;
 
         private Boolean EnElAire => translation.Y - (AABB.calculateSize().Y / 2f) > .1f;
 
@@ -70,7 +70,6 @@ namespace TGC.Group.Model
             ReiniciarJugador();
         }
 
-        private float rotacionRueda = 0;
         private void HandleInputSuelo(TgcD3dInput input)
         {
             cuerpo.AngularVelocity = new Vector3(cuerpo.AngularVelocity.X, 0, cuerpo.AngularVelocity.Z);
@@ -172,19 +171,11 @@ namespace TGC.Group.Model
                 rueda.Update(cuerpo.LinearVelocity.Length * 0.01f * -Math.Sign(cuerpo.LinearVelocity.Dot(Frente)));
         }
 
-        public override void Render()
+        public override void Render(Luz luz)
         {
-            base.Render();
+            base.Render(luz);
             foreach (var rueda in ruedas)
-                rueda.Render(Mesh.Transform);
-            /*rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(4.2f, -.5f, 5) * new TGCMatrix(cuerpo.WorldTransform);
-            rueda.Render();
-            rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(4.2f, -.5f, -4.6f) * new TGCMatrix(cuerpo.WorldTransform);
-            rueda.Render();
-            rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(-4.5f, -.5f, 5) * new TGCMatrix(cuerpo.WorldTransform);
-            rueda.Render();
-            rueda.Transform = TGCMatrix.RotationX(rotacionRueda) * TGCMatrix.Translation(-4.5f, -.5f, -4.6f) * new TGCMatrix(cuerpo.WorldTransform);
-            rueda.Render();*/
+                rueda.Render(Mesh.Transform, luz);
         }
     }
 }

@@ -185,6 +185,11 @@ namespace TGC.Group.Model
             {
                 jugador.Mesh.Effect = TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx");
                 jugador.Mesh.Technique = "BlinnPhong";
+                foreach(var rueda in jugador.ruedas)
+                {
+                    rueda.Mesh.Effect = TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx");
+                    rueda.Mesh.Technique = "BlinnPhong";
+                }
             }
         }
         public override void Dispose()
