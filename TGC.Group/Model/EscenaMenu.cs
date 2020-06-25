@@ -161,10 +161,10 @@ namespace TGC.Group.Model
         private void initJugadores(TgcScene escena)
         {
             List<Rueda> ruedas = new List<Rueda>();
-            ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(4.2f, -.5f, 5)));
-            ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(4.2f, -.5f, -4.6f)));
-            ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(-4.5f, -.5f, 5)));
-            ruedas.Add(new Rueda(escena.getMeshByName("Box_1"), new TGCVector3(-4.5f, -.5f, -4.6f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("AutoRueda"), new TGCVector3(4.5f, -1f, 5)));
+            ruedas.Add(new Rueda(escena.getMeshByName("AutoRueda"), new TGCVector3(4.5f, -1f, -4.8f)));
+            ruedas.Add(new Rueda(escena.getMeshByName("AutoRueda"), new TGCVector3(-4.5f, -1f, 5)));
+            ruedas.Add(new Rueda(escena.getMeshByName("AutoRueda"), new TGCVector3(-4.5f, -1f, -4.8f)));
             Jugador auto = new Jugador("Auto", escena.Meshes[2], ruedas, new TGCVector3(0, 5, 0), new TGCVector3(-.5f, 0, 0));
 
             ruedas = new List<Rueda>();
