@@ -35,11 +35,11 @@ namespace TGC.Group.Model
 
         public void Render(bool lod = false)
         {
+            capas.First().Effect.SetValue("time", time);
             if (lod)
                 capas.First().Render();
             else
             {
-                capas.First().Effect.SetValue("time", time);
                 foreach (var capa in capas)
                 {
                     capa.Effect.SetValue("nivel", capa.Position.Y / altura);

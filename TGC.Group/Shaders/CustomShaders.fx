@@ -31,8 +31,35 @@ samplerCUBE cubeMap = sampler_state
     MIPFILTER = LINEAR;
 };
 
+texture texPerlin;
+sampler2D perlinNoise = sampler_state
+{
+    Texture = (texPerlin);
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
+    MINFILTER = LINEAR;
+    MAGFILTER = LINEAR;
+    MIPFILTER = LINEAR;
+};
+
 //Factor de translucidez
 float alphaValue = 1;
+
+
+float time = 0;
+
+
+
+float2 random2(float2 input)
+{
+    return frac(sin(float2(dot(input, float2(127.1, 311.7)), dot(input, float2(269.5, 183.3)))) * 43758.5453);
+}
+
+
+float random(float input)
+{
+    return frac(sin(dot(input, 127.1)) * 43758.5453);
+}
 
 
 
@@ -140,7 +167,7 @@ float4 ps_BlinnPhong(PS_BLINN input) : COLOR0
 	//Obtener texel de CubeMap
     float3 R = reflect(Vn, Nn);
     float3 reflectionColor = texCUBE(cubeMap, R).rgb;
-
+    
 	//Componente Diffuse: N dot L
     float3 n_dot_l = dot(Nn, Ln);
     float3 diffuseLight = lightColor * max(0.0, n_dot_l); //Controlamos que no de negativo
@@ -163,6 +190,78 @@ technique BlinnPhong
     {
         VertexShader = compile vs_3_0 vs_BlinnPhong();
         PixelShader = compile ps_3_0 ps_BlinnPhong();
+    }
+}
+
+
+/**************************************************************************************/
+/* Explosion */
+/**************************************************************************************/
+
+
+//Input del Vertex Shader
+struct VS_INPUT_EXPLOSION
+{
+    float4 Position : POSITION0;
+    float3 Normal : NORMAL0;
+    float2 Texcoord : TEXCOORD0;
+};
+
+//Output del Vertex Shader
+struct VS_OUTPUT_EXPLOSION
+{
+    float4 Position : POSITION0;
+    float2 Texcoord : TEXCOORD0;
+};
+
+//Vertex Shader
+VS_OUTPUT_EXPLOSION vs_Explosion(VS_INPUT_EXPLOSION input)
+{
+    VS_OUTPUT_EXPLOSION output;
+    
+    //input.Position.xyz = input.Position.xyz + input.Normal.xyz * random2(input.Normal.xy).x * 10;
+    input.Position.xyz = input.Position.xyz + input.Normal.xyz * random(input.Position.x) * 10;
+    input.Position.xyz = lerp(0, input.Position.xyz, sin(time * .5) * 2);
+    
+	//Proyectar posicion
+    output.Position = mul(input.Position, matWorldViewProj);
+
+	//Enviar Texcoord directamente
+    output.Texcoord = input.Texcoord;        
+
+    return output;
+}
+
+//Input del Pixel Shader
+struct PS_EXPLOSION
+{
+    float2 Texcoord : TEXCOORD0;
+};
+
+float4 colorEquipo;
+//Pixel Shader
+float4 ps_Explosion(PS_EXPLOSION input) : COLOR0
+{    
+	//Obtener texel de la textura
+    float4 texelColor = tex2D(perlinNoise, input.Texcoord);
+    
+    if (1 / texelColor.r < time)
+        discard;
+        
+    texelColor = lerp(texelColor * normalize(colorEquipo), 0, time * 0.5);
+    
+    return texelColor;
+}
+
+/*
+* Technique EXPLOSION
+*/
+technique Explosion
+{
+    pass Pass_0
+    {
+        VertexShader = compile vs_3_0 vs_Explosion();
+        PixelShader = compile ps_3_0 ps_Explosion();
     }
 }
 
@@ -206,7 +305,6 @@ struct PS_INPUT_Pasto
 };
 
 float nivel = 0; // Altura del pasto. Va del 0 la capa mas baja, al 1 la capa mas alta
-float time = 0;
 //Pixel Shader
 float4 ps_Pasto(PS_INPUT_Pasto input) : COLOR0
 {

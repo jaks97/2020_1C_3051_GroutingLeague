@@ -70,6 +70,7 @@ namespace TGC.Group.Model
             pelota = new Pelota(escena.getMeshByName("Pelota"), new TGCVector3(0f, 50f, -250f));
             pelota.Mesh.Effect = TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx");
             pelota.Mesh.Technique = "BlinnPhong";
+            pelota.Mesh.Effect.SetValue("texPerlin", TextureLoader.FromFile(D3DDevice.Instance.Device, MediaDir + "Textures\\PerlinNoise.png"));
             dynamicsWorld.AddRigidBody(pelota.Cuerpo);
 
             paredes = new Paredes(escena.getMeshByName("Box_5"));
@@ -88,7 +89,7 @@ namespace TGC.Group.Model
             ui = new UIEscenaJuego();
             ui.Init(MediaDir,drawer2D);
 
-            animacionGol = new AnimacionGol();
+            animacionGol = new AnimacionGol(pelota);
         }
 
         private void initFisica()
@@ -237,14 +238,13 @@ namespace TGC.Group.Model
                 if (arcos[0].CheckCollideWith(pelota))
                 {
                     golequipo1++;
-                    animacionGol.AnimarGol(jugadores, pelota.Translation);
+                    animacionGol.AnimarGol(jugadores, Color.Blue);
                 }
 
                 if (arcos[1].CheckCollideWith(pelota))
                 {
                     golequipo2++;
-                    //emitter = new ParticleEmitter(MediaDir + "Texturas\\Particles\\fuego.png", 10);
-                    animacionGol.AnimarGol(jugadores, pelota.Translation);
+                    animacionGol.AnimarGol(jugadores, Color.Red);
                 }
             }
 
@@ -256,7 +256,8 @@ namespace TGC.Group.Model
             skyBox.Render();
 
             if(!cubemap)
-                pelota.Mesh.Effect.SetValue("normal_map", TextureLoader.FromFile(D3DDevice.Instance.Device, MediaDir + "Textures\\pelotaNormalMap.png"));
+                pelota.Mesh.Effect.SetValue("normal_map", TextureLoader.FromFile(D3DDevice.Instance.Device, MediaDir + "Textures\\pelotaNormalMap.png")); // TODO: Estamos cargando siempre esta textura del disco. Esto habria que evitarlo
+
             pelota.Render(sol);
 
             pasto.Render(cubemap);

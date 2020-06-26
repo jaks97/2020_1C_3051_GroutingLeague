@@ -8,6 +8,7 @@ namespace TGC.Group.Model
     class Pelota : ObjetoJuego
     {
         private float scaleFactor;
+        public float Time { get; set; }
 
 
         public Pelota(TgcMesh mesh, TGCVector3 translation = new TGCVector3(), TGCVector3 rotation = new TGCVector3(), float angle = 0) : base(mesh, translation, rotation, angle)
@@ -22,11 +23,17 @@ namespace TGC.Group.Model
             Ka = .7f;
             Kd = .5f;
             Ks = 1f;
-            shininess = 100;            
+            shininess = 100;
+        }
+        public override void Update(float elapsedTime)
+        {
+            base.Update(elapsedTime);
+            Time += elapsedTime;
         }
 
         public override void Render()
         {
+            Mesh.Effect.SetValue("time", Time);
             Mesh.Transform = TGCMatrix.Scaling(scaleFactor, scaleFactor, scaleFactor) * new TGCMatrix(cuerpo.InterpolationWorldTransform);
             Mesh.Render();
 
