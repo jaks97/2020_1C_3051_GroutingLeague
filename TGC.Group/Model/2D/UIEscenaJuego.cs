@@ -8,7 +8,9 @@ namespace TGC.Group.Model._2D
     class UIEscenaJuego
     {
         public string TextoTurbo { set { textoTurboHud.Texto = value; } }
+        public string TextoTurboDos { set { textoTurboDosHud.Texto = value; } }
         public Color ColorTextoTurbo { set { textoTurboHud.Color = value; } }
+        public Color ColorTextoTurboDos { set { textoTurboDosHud.Color = value; } }
         public string TextoGolAzul { set { textoGolAzulHud.Texto = value; } }
         public string TextoGolRojo { set { textoGolRojoHud.Texto = value; } }
         public string TextoReloj { set { textoRelojHud.Texto = value; } }
@@ -20,11 +22,13 @@ namespace TGC.Group.Model._2D
         private HUDSprite equipoRojoHUD;
         private HUDSprite equipoAzulHUD;
         private HUDSprite turboHUD;
+        private HUDSprite turboDosHUD;
         //Texto
         private HUDTexto textoGolAzulHud;
         private HUDTexto textoGolRojoHud;
         private HUDTexto textoRelojHud;
         private HUDTexto textoTurboHud;
+        private HUDTexto textoTurboDosHud;
 
         public UIEscenaJuego() { }
 
@@ -41,7 +45,12 @@ namespace TGC.Group.Model._2D
             medidorTurbo.Bitmap = new CustomBitmap(MediaDir + "\\Textures\\MedidorTurbo.png", D3DDevice.Instance.Device);
             turboHUD = new HUDSprite(HUD.AnclajeHorizontal.RIGHT, HUD.AnclajeVertical.BOTTOM, new TGCVector2(.05f, .05f), new TGCVector2(1, 1), drawer2D, medidorTurbo);
             turboHUD.Init();
-            
+
+            CustomSprite medidorTurboDos = new CustomSprite();
+            medidorTurboDos.Bitmap = new CustomBitmap(MediaDir + "\\Textures\\MedidorTurbo.png", D3DDevice.Instance.Device);
+            turboDosHUD = new HUDSprite(HUD.AnclajeHorizontal.LEFT, HUD.AnclajeVertical.BOTTOM, new TGCVector2(.05f, .05f), new TGCVector2(1, 1), drawer2D, medidorTurboDos);
+            turboDosHUD.Init();
+
             CustomSprite equipoAzulSprite = new CustomSprite();
             equipoAzulSprite.Bitmap = new CustomBitmap(MediaDir + "\\Textures\\EquipoAzul.png", D3DDevice.Instance.Device);
             equipoAzulHUD = new HUDSprite(HUD.AnclajeHorizontal.LEFT, HUD.AnclajeVertical.TOP, new TGCVector2(0.40f, 0.015f),new TGCVector2(1.0f, 1.5f),drawer2D,equipoAzulSprite);
@@ -59,6 +68,14 @@ namespace TGC.Group.Model._2D
             textoTurbo.changeFont(new Font("TimesNewRoman", 50, FontStyle.Bold));
             textoTurboHud = new HUDTexto(HUD.AnclajeHorizontal.RIGHT, HUD.AnclajeVertical.BOTTOM, new TGCVector2(.05f, 170f / 1080), drawer2D, textoTurbo);
             textoTurboHud.Init();
+
+            TgcText2D textoTurboDos = new TgcText2D();
+            textoTurboDos.Align = TgcText2D.TextAlign.CENTER;
+            textoTurboDos.Size = new Size((int)(250 * medidorTurboDos.Scaling.X), 50);
+            textoTurboDos.Color = Color.White;
+            textoTurboDos.changeFont(new Font("TimesNewRoman", 50, FontStyle.Bold));
+            textoTurboDosHud = new HUDTexto(HUD.AnclajeHorizontal.LEFT, HUD.AnclajeVertical.BOTTOM, new TGCVector2(.05f, 170f / 1080), drawer2D, textoTurboDos);
+            textoTurboDosHud.Init();
 
             TgcText2D textoGolAzul = new TgcText2D();
             textoGolAzul.Align = TgcText2D.TextAlign.CENTER;
@@ -88,12 +105,17 @@ namespace TGC.Group.Model._2D
             textoRelojHud.Init();
         }
 
-        public void Render()
+        public void Render(bool splitScreen)
         {
             equipoAzulHUD.Render();
             equipoRojoHUD.Render();
             turboHUD.Render();
             textoTurboHud.Render();
+            if (splitScreen)
+            { 
+                turboDosHUD.Render();
+                textoTurboDosHud.Render();
+            }
             relojBG.Render();
 
             textoGolAzulHud.Render();

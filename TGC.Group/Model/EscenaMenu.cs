@@ -13,8 +13,7 @@ using TGC.Group.Model._2D;
 using System.Linq;
 using TGC.Core.Shaders;
 using TGC.Core.Sound;
-
-
+using Microsoft.DirectX.Direct3D;
 
 namespace TGC.Group.Model
 {
@@ -40,7 +39,7 @@ namespace TGC.Group.Model
             TgcText2D texto2D = new TgcText2D();
             texto2D.Align = TgcText2D.TextAlign.CENTER;
             texto2D.Size = new Size((int)(menuItem.Sprite.Scaling.X * 350), 20);
-            texto2D.changeFont(new Font("Calibri", D3DDevice.Instance.Width / 96f, FontStyle.Italic | FontStyle.Bold));
+            texto2D.changeFont(new System.Drawing.Font("Calibri", D3DDevice.Instance.Width / 96f, FontStyle.Italic | FontStyle.Bold));
             texto2D.Text = texto;
 
             this.texto = new HUDTexto(HUD.AnclajeHorizontal.LEFT, HUD.AnclajeVertical.TOP, new TGCVector2(0.1f, 0.5175f + (float)indice / 17), drawer, texto2D);
@@ -142,6 +141,10 @@ namespace TGC.Group.Model
             botones.Add(new Boton(menuItem, menuItemSelec, "Salir", 5, drawer2D));
 
             initSkyBox();
+
+            // Restauro el estado de las transformaciones
+            D3DDevice.Instance.Device.Transform.View = Camera.GetViewMatrix().ToMatrix();
+            D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
         }
 
         private void initSkyBox()

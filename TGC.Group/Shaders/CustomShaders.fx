@@ -419,3 +419,56 @@ technique PostProcess
         PixelShader = compile ps_3_0 PSPostProcess();
     }
 }
+
+/**************************************************************************************/
+/* SplitScreen */
+/**************************************************************************************/
+
+texture texPrimerJugador;
+sampler2D primerJugador = sampler_state
+{
+    Texture = (texPrimerJugador);
+    ADDRESSU = BORDER;
+    ADDRESSV = WRAP;
+    MINFILTER = LINEAR;
+    MAGFILTER = LINEAR;
+    MIPFILTER = LINEAR;
+};
+texture texSegundoJugador;
+sampler2D segundoJugador = sampler_state
+{
+    Texture = (texSegundoJugador);
+    ADDRESSU = BORDER;
+    ADDRESSV = WRAP;
+    MINFILTER = LINEAR;
+    MAGFILTER = LINEAR;
+    MIPFILTER = LINEAR;
+};
+//Vertex Shader
+VS_OUTPUT_POSTPROCESS VSSplitScreen(VS_INPUT_POSTPROCESS input)
+{
+    VS_OUTPUT_POSTPROCESS output;
+
+	// Propagamos la posicion, ya que esta en espacio de pantalla
+    output.Position = input.Position;
+
+	// Propagar coordenadas de textura
+    output.TextureCoordinates = input.TextureCoordinates * float2(2, 1);
+
+    return output;
+}
+
+//Pixel Shader
+float4 PSSplitScreen(VS_OUTPUT_POSTPROCESS input) : COLOR0
+{
+    return tex2D(primerJugador, input.TextureCoordinates - 1) + tex2D(segundoJugador, input.TextureCoordinates);
+}
+
+technique SplitScreen
+{
+    pass Pass_0
+    {
+        VertexShader = compile vs_3_0 VSSplitScreen();
+        PixelShader = compile ps_3_0 PSSplitScreen();
+    }
+}
