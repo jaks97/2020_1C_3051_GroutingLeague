@@ -53,9 +53,14 @@ namespace TGC.Group.Model
         // 2D
         private UIEscenaJuego ui;
 
+        private TgcScreenQuad screenQuad;
+        private Microsoft.DirectX.Direct3D.Effect effect;
+
         public EscenaJuego(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input, List<Jugador> jugadores, Jugador jugadorActivo, bool dia = true) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
         {
             this.dia = dia;
+            screenQuad = new TgcScreenQuad();
+
             initFisica();
 
             initMeshes();
@@ -90,6 +95,15 @@ namespace TGC.Group.Model
             ui.Init(MediaDir,drawer2D);
 
             animacionGol = new AnimacionGol(pelota);
+
+
+            //Cargar shader con efectos de Post-Procesado
+            effect = TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx");
+
+            //Configurar Technique dentro del shader
+            effect.Technique = "PostProcess";
+            effect.SetValue("screenWidth", D3DDevice.Instance.Device.PresentationParameters.BackBufferWidth);
+            effect.SetValue("screenHeight", D3DDevice.Instance.Device.PresentationParameters.BackBufferHeight);
         }
 
         private void initFisica()
@@ -282,7 +296,6 @@ namespace TGC.Group.Model
 
 
             paredes.Render();
-
         }
 
         private CubeTexture cubemap(TGCVector3 worldPos)
@@ -341,9 +354,17 @@ namespace TGC.Group.Model
             return g_pCubeMap;
         }
 
+        private void renderLuminoso()
+        {
+            if(animacionGol.Activo)
+                pelota.Render(sol);
+        }
+
         public override void Render()
         {
-            var pOldRT = D3DDevice.Instance.Device.GetRenderTarget(0);
+            var d3dDevice = D3DDevice.Instance.Device;
+
+            var pOldRT = d3dDevice.GetRenderTarget(0);
             var g_pCubeMap = cubemap(jugadorActivo.Translation); // Solo hago un cubemap del jugador activo y lo uso en los demas por performance
             foreach (var jugador in jugadores)
             {
@@ -353,21 +374,76 @@ namespace TGC.Group.Model
             }
             g_pCubeMap.Dispose();
 
-            // restauro el render target
-            D3DDevice.Instance.Device.SetRenderTarget(0, pOldRT);
+
+            //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
+            var renderTarget2D = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
+                d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+
+            //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
+            //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
+            var pSurf = renderTarget2D.GetSurfaceLevel(0);
+            d3dDevice.SetRenderTarget(0, pSurf);
 
             // Restauro el estado de las transformaciones
-            D3DDevice.Instance.Device.Transform.View = Camera.GetViewMatrix().ToMatrix();
-            D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
+            d3dDevice.Transform.View = Camera.GetViewMatrix().ToMatrix();
+            d3dDevice.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
+            
+            // dibujo pp dicho
+            d3dDevice.BeginScene();
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+            renderScene();
+            d3dDevice.EndScene();
+
+            //Liberar memoria de surface de Render Target
+            pSurf.Dispose();
+
+            //Si quisieramos ver que se dibujo, podemos guardar el resultado a una textura en un archivo para debugear su resultado (ojo, es lento)
+            //TextureLoader.Save(this.ShadersDir + "render_target.bmp", ImageFileFormat.Bmp, renderTarget2D);
+
+            // Renderizamos lo que va a tener bloom
+
+            //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
+            var renderTargetBloom = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
+                d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+
+            //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
+            //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
+            pSurf = renderTargetBloom.GetSurfaceLevel(0);
+            d3dDevice.SetRenderTarget(0, pSurf);
+
+            // Restauro el estado de las transformaciones
+            d3dDevice.Transform.View = Camera.GetViewMatrix().ToMatrix();
+            d3dDevice.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
 
             // dibujo pp dicho
-            D3DDevice.Instance.Device.BeginScene();
-            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-            renderScene();
+            d3dDevice.BeginScene();
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+            renderLuminoso();
+            d3dDevice.EndScene();
+
+            //Liberar memoria de surface de Render Target
+            pSurf.Dispose();
+
+
+
+
+            //Ahora volvemos a restaurar el Render Target original (osea dibujar a la pantalla)
+            d3dDevice.SetRenderTarget(0, pOldRT);
+
+            //Arrancamos la escena
+            d3dDevice.BeginScene();
+
+            //Cargamos parametros en el shader de Post-Procesado
+            effect.SetValue("texDiffuseMap", renderTarget2D);
+            effect.SetValue("texBloom", renderTargetBloom);
+            effect.SetValue("activo", Input.keyDown(Key.B)); // Para debugear nomas
+
+            screenQuad.render(effect);
 
             DrawText.drawText("posicion del jugador: " + jugadorActivo.Translation.ToString(), 0, 20, Color.Red);
             ui.Render();
             sol.Render();
+            pOldRT.Dispose();
         }
         public override void Dispose()
         {

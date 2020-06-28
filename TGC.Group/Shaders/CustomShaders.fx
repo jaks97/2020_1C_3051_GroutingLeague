@@ -329,3 +329,93 @@ technique Pasto
         PixelShader = compile ps_3_0 ps_Pasto();
     }
 }
+
+/**************************************************************************************/
+/* PostProcess */
+/**************************************************************************************/
+
+static const int radius = 7;
+static const int kernelSize = 15;
+static const float kernel[kernelSize] =
+{
+    0.000489, 0.002403, 0.009246, 0.02784, 0.065602, 0.120999, 0.174697, 0.197448, 0.174697, 0.120999, 0.065602, 0.02784, 0.009246, 0.002403, 0.000489
+};
+
+//Input del Vertex Shader
+struct VS_INPUT_POSTPROCESS
+{
+    float4 Position : POSITION0;
+    float2 TextureCoordinates : TEXCOORD0;
+};
+
+//Output del Vertex Shader
+struct VS_OUTPUT_POSTPROCESS
+{
+    float4 Position : POSITION0;
+    float2 TextureCoordinates : TEXCOORD0;
+};
+
+//Vertex Shader
+VS_OUTPUT_POSTPROCESS VSPostProcess(VS_INPUT_POSTPROCESS input)
+{
+    VS_OUTPUT_POSTPROCESS output;
+
+	// Propagamos la posicion, ya que esta en espacio de pantalla
+    output.Position = input.Position;
+
+	// Propagar coordenadas de textura
+    output.TextureCoordinates = input.TextureCoordinates;
+
+    return output;
+}
+
+
+bool activo = false;
+int screenWidth;
+int screenHeight;
+texture texBloom;
+sampler2D bloomSampler = sampler_state
+{
+    Texture = (texBloom);
+    ADDRESSU = WRAP;
+    ADDRESSV = WRAP;
+    MINFILTER = LINEAR;
+    MAGFILTER = LINEAR;
+    MIPFILTER = LINEAR;
+};
+float4 blurearTextura(sampler2D textura, float2 texCoord)
+{
+    float4 horizontalSum = float4(0, 0, 0, 1);
+    for (float x = 0; x < kernelSize; x++)
+    {
+        float2 delta = float2((x - radius + 1) / (screenWidth / 2), 0);
+        horizontalSum += tex2D(textura, texCoord + delta) * kernel[x];
+    }
+    float4 verticalSum = float4(0, 0, 0, 1);
+    for (float y = 0; y < kernelSize; y++)
+    {
+        float2 delta = float2(0, (y - radius + 1) / (screenHeight / 2));
+        verticalSum += tex2D(textura, texCoord + delta) * kernel[y];
+    }
+    
+    return (horizontalSum + verticalSum) * 0.5;
+
+}
+//Pixel Shader
+float4 PSPostProcess(VS_OUTPUT_POSTPROCESS input) : COLOR0
+{
+    float4 tex = tex2D(diffuseMap, input.TextureCoordinates);
+    
+    float4 bloom = blurearTextura(bloomSampler, input.TextureCoordinates);
+    
+    return !activo ? (bloom + tex) : tex;
+}
+
+technique PostProcess
+{
+    pass Pass_0
+    {
+        VertexShader = compile vs_3_0 VSPostProcess();
+        PixelShader = compile ps_3_0 PSPostProcess();
+    }
+}
