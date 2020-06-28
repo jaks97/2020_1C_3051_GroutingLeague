@@ -15,6 +15,7 @@ using TGC.Core.Shaders;
 using TGC.Core.Terrain;
 using TGC.Core.Text;
 using TGC.Group.Model._2D;
+using TGC.Core.Sound;
 
 namespace TGC.Group.Model
 {
@@ -57,6 +58,7 @@ namespace TGC.Group.Model
         private Microsoft.DirectX.Direct3D.Effect effect;
         private CubeTexture g_pCubeMap; // Cubemap para Env Shader
         int frameNumber; // Numero de frame
+        private TgcMp3Player mp3Gol;
 
         public EscenaJuego(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input, List<Jugador> jugadores, Jugador jugadorActivo, bool dia = true) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
         {
@@ -72,6 +74,9 @@ namespace TGC.Group.Model
             initJugadores();
 
             sol = new Luz(Color.White, new TGCVector3(0, 70, -130));
+            
+            mp3Gol = new TgcMp3Player();
+            mp3Gol.FileName = MediaDir + "Music\\Gol.mp3";
 
             pelota = new Pelota(escena.getMeshByName("Pelota"), new TGCVector3(0f, 50f, -250f));
             pelota.Mesh.Effect.SetValue("texPerlin", TextureLoader.FromFile(D3DDevice.Instance.Device, MediaDir + "Textures\\PerlinNoise.png"));
@@ -196,6 +201,7 @@ namespace TGC.Group.Model
         private void Reubicar()
         {
             pelota.ReiniciarPelota();
+            mp3Gol.closeFile();
             jugadores.ForEach(jugador => jugador.ReiniciarJugador());
             turbos.ForEach(turbo => turbo.Reiniciar());
         }
@@ -257,12 +263,14 @@ namespace TGC.Group.Model
                 if (arcos[0].CheckCollideWith(pelota))
                 {
                     golequipo1++;
+                    mp3Gol.play(true);
                     animacionGol.AnimarGol(jugadores, Color.Blue);
                 }
 
                 if (arcos[1].CheckCollideWith(pelota))
                 {
                     golequipo2++;
+                    mp3Gol.play(true);
                     animacionGol.AnimarGol(jugadores, Color.Red);
                 }
             }
