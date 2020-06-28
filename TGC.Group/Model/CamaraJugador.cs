@@ -41,7 +41,7 @@ namespace TGC.Group.Model
             cameraPosition = new TGCVector3(0, 100, 225);
         }
 
-        public void Update(float ElapsedTime)
+        public void Update()
         {
             TGCVector3 viewDirection = jugador.Translation - pelota.Translation;
             TGCVector3 jugadorTranslation = jugador.Translation;

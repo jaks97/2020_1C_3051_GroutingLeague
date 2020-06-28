@@ -13,6 +13,9 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -113,6 +116,7 @@
     <Compile Include="Model\AnimacionGol.cs" />
     <Compile Include="Model\Arco.cs" />
     <Compile Include="Model\CamaraJugador.cs" />
+    <Compile Include="Model\Controles.cs" />
     <Compile Include="Model\Escena.cs" />
     <Compile Include="Model\EscenaControles.cs" />
     <Compile Include="Model\EscenaGameOver.cs" />
@@ -188,7 +192,7 @@
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
       <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
+      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 y x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

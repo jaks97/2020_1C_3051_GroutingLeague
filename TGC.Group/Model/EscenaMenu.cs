@@ -13,8 +13,7 @@ using TGC.Group.Model._2D;
 using System.Linq;
 using TGC.Core.Shaders;
 using TGC.Core.Sound;
-
-
+using Microsoft.DirectX.Direct3D;
 
 namespace TGC.Group.Model
 {
@@ -40,7 +39,7 @@ namespace TGC.Group.Model
             TgcText2D texto2D = new TgcText2D();
             texto2D.Align = TgcText2D.TextAlign.CENTER;
             texto2D.Size = new Size((int)(menuItem.Sprite.Scaling.X * 350), 20);
-            texto2D.changeFont(new Font("Calibri", D3DDevice.Instance.Width / 96f, FontStyle.Italic | FontStyle.Bold));
+            texto2D.changeFont(new System.Drawing.Font("Calibri", D3DDevice.Instance.Width / 96f, FontStyle.Italic | FontStyle.Bold));
             texto2D.Text = texto;
 
             this.texto = new HUDTexto(HUD.AnclajeHorizontal.LEFT, HUD.AnclajeVertical.TOP, new TGCVector2(0.1f, 0.5175f + (float)indice / 17), drawer, texto2D);
@@ -82,6 +81,7 @@ namespace TGC.Group.Model
             CONTROLES,
             CAMBIARVEHICULO,
             HORA,
+            DOSJUGADORES,
             SALIR
         }
 
@@ -114,8 +114,7 @@ namespace TGC.Group.Model
         }
 
         private Luz sol;
-        private TgcMp3Player mp3Player;
-       
+        private TgcMp3Player mp3Player;       
 
         public EscenaMenu(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
         {
@@ -138,9 +137,14 @@ namespace TGC.Group.Model
             botones.Add(new Boton(menuItem, menuItemSelec, "Controles", 1, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "< Cambiar vehículo >", 2, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "Dia", 3, drawer2D));
-            botones.Add(new Boton(menuItem, menuItemSelec, "Salir", 4, drawer2D));
+            botones.Add(new Boton(menuItem, menuItemSelec, "Modo pantalla dividida", 4, drawer2D));
+            botones.Add(new Boton(menuItem, menuItemSelec, "Salir", 5, drawer2D));
 
             initSkyBox();
+
+            // Restauro el estado de las transformaciones
+            D3DDevice.Instance.Device.Transform.View = Camera.GetViewMatrix().ToMatrix();
+            D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
         }
 
         private void initSkyBox()
@@ -241,7 +245,8 @@ namespace TGC.Group.Model
                 {
                     case Items.INICIAR:
                         mp3Player.closeFile();
-                        return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadores[jugadorActivo], dia));
+                        jugadores[jugadorActivo].controles = new Controles(Key.UpArrow, Key.DownArrow, Key.LeftArrow, Key.RightArrow, Key.Space, Key.RightControl);
+                        return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadores[jugadorActivo], null, dia));
                     case Items.CONTROLES:
                         mp3Player.closeFile();
                         return CambiarEscena(new EscenaControles(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
@@ -249,6 +254,16 @@ namespace TGC.Group.Model
                         mp3Player.closeFile();
                         Form.GameForm.ActiveForm.Close();
                         break;
+                    case Items.DOSJUGADORES:
+                        {
+                            var jugadorUno = jugadores[jugadorActivo];
+                            jugadorUno.controles = new Controles(Key.UpArrow, Key.DownArrow, Key.LeftArrow, Key.RightArrow, Key.Space, Key.RightControl);
+                            var jugadorDos = jugadores[++jugadorActivo];
+                            jugadorDos.controles = new Controles(Key.W, Key.S, Key.A, Key.D, Key.LeftShift, Key.LeftControl);
+                            mp3Player.closeFile();
+                            return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadorUno, jugadorDos, dia));
+                            break;
+                        }
                 }
 
             if(tiempoMovido <= 0)
