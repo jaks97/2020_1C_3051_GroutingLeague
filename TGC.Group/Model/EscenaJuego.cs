@@ -119,8 +119,8 @@ namespace TGC.Group.Model
 
             g_pCubeMap = new CubeTexture(D3DDevice.Instance.Device, 64, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
             //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
-            renderTargetBloom = new Texture(D3DDevice.Instance.Device, D3DDevice.Instance.Device.PresentationParameters.BackBufferWidth,
-                D3DDevice.Instance.Device.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+            renderTargetBloom = new Texture(D3DDevice.Instance.Device, D3DDevice.Instance.Device.PresentationParameters.BackBufferWidth / 2,
+                D3DDevice.Instance.Device.PresentationParameters.BackBufferHeight / 2, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
             depthStencil = D3DDevice.Instance.Device.CreateDepthStencilSurface(D3DDevice.Instance.Device.PresentationParameters.BackBufferWidth,
                  D3DDevice.Instance.Device.PresentationParameters.BackBufferHeight, DepthFormat.D24S8, MultiSampleType.None, 0, true);
         }
@@ -170,7 +170,7 @@ namespace TGC.Group.Model
             //cargar escena
             escena = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Cancha-TgcScene.xml");
 
-            pasto = new Pasto(escena.Meshes[0], customShaders.Clone(D3DDevice.Instance.Device), 32, .5f);
+            pasto = new Pasto(escena.Meshes[0], customShaders.Clone(D3DDevice.Instance.Device), 20, .5f);
 
             TgcMesh meshTurbo = escena.getMeshByName("Turbo");
 
