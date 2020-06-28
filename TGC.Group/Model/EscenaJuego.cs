@@ -73,10 +73,7 @@ namespace TGC.Group.Model
 
             sol = new Luz(Color.White, new TGCVector3(0, 70, -130));
 
-
             pelota = new Pelota(escena.getMeshByName("Pelota"), new TGCVector3(0f, 50f, -250f));
-            pelota.Mesh.Effect = TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx");
-            pelota.Mesh.Technique = "BlinnPhong";
             pelota.Mesh.Effect.SetValue("texPerlin", TextureLoader.FromFile(D3DDevice.Instance.Device, MediaDir + "Textures\\PerlinNoise.png"));
             dynamicsWorld.AddRigidBody(pelota.Cuerpo);
 
@@ -150,10 +147,12 @@ namespace TGC.Group.Model
             skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "lostatseaday_ft.jpg");
             skyBox.Init();
 
+            Microsoft.DirectX.Direct3D.Effect customShaders = TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx");
+
             //cargar escena
             escena = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Cancha-TgcScene.xml");
 
-            pasto = new Pasto(escena.Meshes[0], TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx"), 32, .5f);
+            pasto = new Pasto(escena.Meshes[0], customShaders.Clone(D3DDevice.Instance.Device), 32, .5f);
 
             TgcMesh meshTurbo = escena.getMeshByName("Turbo");
 
@@ -175,6 +174,11 @@ namespace TGC.Group.Model
                 new Turbo(meshTurbo, new TGCVector3(220, -.2f, -300), 100)
             };
 
+            foreach (TgcMesh mesh in escena.Meshes)
+            {
+                mesh.Effect = customShaders.Clone(D3DDevice.Instance.Device);
+                mesh.Technique = "BlinnPhong";
+            }
         }
 
         private void initJugadores()
@@ -268,6 +272,7 @@ namespace TGC.Group.Model
         
         private void renderScene(bool cubemap = false)
         {
+
             skyBox.Render();
 
             if(!cubemap)
@@ -287,15 +292,15 @@ namespace TGC.Group.Model
                 }
             }
 
-            arcos[0].Render();
-            arcos[1].Render();
+            arcos[0].Render(sol);
+            arcos[1].Render(sol);
 
             foreach (var turbo in turbos)
             {
-                turbo.Render();
+                turbo.Render(sol);
             }
 
-            paredes.Render();
+            paredes.Render(sol);
         }
 
         private void renderCubemap(TGCVector3 worldPos)
@@ -303,53 +308,6 @@ namespace TGC.Group.Model
             // ojo: es fundamental que el fov sea de 90 grados.
             // asi que re-genero la matriz de proyeccion
             D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(90.0f), 1f, 1f, 10000f).ToMatrix();
-
-            /*// Genero las caras del enviroment map
-            for (var nFace = framePar ? CubeMapFace.PositiveX : CubeMapFace.NegativeX; nFace <= CubeMapFace.NegativeZ; nFace += 2)
-            {
-                var pFace = g_pCubeMap.GetCubeMapSurface(nFace, 0);
-                D3DDevice.Instance.Device.SetRenderTarget(0, pFace);
-                TGCVector3 Dir, VUP;
-                switch (nFace)
-                {
-                    default:
-                    case CubeMapFace.PositiveX:
-                        Dir = new TGCVector3(1, 0, 0);
-                        VUP = TGCVector3.Up;
-                        break;
-                    case CubeMapFace.NegativeX:
-                        Dir = new TGCVector3(-1, 0, 0);
-                        VUP = TGCVector3.Up;
-                        break;
-                    case CubeMapFace.PositiveY:
-                        Dir = TGCVector3.Up;
-                        VUP = new TGCVector3(0, 0, -1);
-                        break;
-                    case CubeMapFace.NegativeY:
-                        Dir = TGCVector3.Down;
-                        VUP = new TGCVector3(0, 0, 1);
-                        break;
-                    case CubeMapFace.PositiveZ:
-                        Dir = new TGCVector3(0, 0, 1);
-                        VUP = TGCVector3.Up;
-                        break;
-                    case CubeMapFace.NegativeZ:
-                        Dir = new TGCVector3(0, 0, -1);
-                        VUP = TGCVector3.Up;
-                        break;
-                }
-
-                //como queremos usar la camara rotacional pero siguendo a un objetivo comentamos el seteo del view.
-                D3DDevice.Instance.Device.Transform.View = TGCMatrix.LookAtLH(worldPos, Dir, VUP);
-
-                D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                D3DDevice.Instance.Device.BeginScene();
-
-                //Renderizar
-                renderScene(true);
-
-                D3DDevice.Instance.Device.EndScene();
-            }*/
 
             // En vez de renderizar todas las caras en todos los frames (Como en el codigo comentado de arriba), renderizo una cara por cada frame
             var nFace = (CubeMapFace)(frameNumber % 6);
@@ -400,8 +358,31 @@ namespace TGC.Group.Model
         // Metodo que renderiza objetos luminosos para el bloom
         private void renderLuminoso()
         {
-            if(animacionGol.Activo)
+
+            if (animacionGol.Activo)
+            {
+
+                foreach (var jugador in jugadores)
+                {
+                    if (jugador.Translation != Camera.Position)
+                    {
+
+                        jugador.Mesh.Effect.SetValue("eyePosition", TGCVector3.TGCVector3ToFloat3Array(Camera.Position));
+                        jugador.Mesh.Technique = "Negro";
+                        jugador.ruedas[0].Mesh.Technique = "Negro";
+                        jugador.Render(sol);
+                        jugador.Mesh.Technique = "BlinnPhong";
+                        jugador.ruedas[0].Mesh.Technique = "BlinnPhong";
+                    }
+                }
+
+                arcos[0].Mesh.Technique = "Negro";
+                arcos[0].Render(sol);
+                arcos[1].Render(sol);
+                arcos[0].Mesh.Technique = "BlinnPhong";
+
                 pelota.Render(sol);
+            }
         }
 
         public override void Render()
@@ -421,7 +402,7 @@ namespace TGC.Group.Model
 
             //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
             var renderTarget2D = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
-                d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+                d3dDevice.PresentationParameters.BackBufferHeight, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
 
             //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
             //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
@@ -434,7 +415,7 @@ namespace TGC.Group.Model
             
             // dibujo pp dicho
             d3dDevice.BeginScene();
-            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer | ClearFlags.Stencil, Color.Black, 1.0f, 0);
             renderScene();
             d3dDevice.EndScene();
 
@@ -448,20 +429,16 @@ namespace TGC.Group.Model
 
             //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
             var renderTargetBloom = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
-                d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+                d3dDevice.PresentationParameters.BackBufferHeight, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
 
             //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
             //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
             pSurf = renderTargetBloom.GetSurfaceLevel(0);
             d3dDevice.SetRenderTarget(0, pSurf);
 
-            // Restauro el estado de las transformaciones
-            d3dDevice.Transform.View = Camera.GetViewMatrix().ToMatrix();
-            d3dDevice.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
-
             // dibujo pp dicho
             d3dDevice.BeginScene();
-            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer | ClearFlags.Stencil, Color.Black, 1.0f, 0);
             renderLuminoso();
             d3dDevice.EndScene();
 
