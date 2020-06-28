@@ -3,6 +3,7 @@ using Microsoft.DirectX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Windows.Forms;
 using TGC.Core.BulletPhysics;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
@@ -14,7 +15,7 @@ namespace TGC.Group.Model
     {
         //Objetos de juego
         private String nombre;
-        private Key inputAvanzar;
+        public Controles controles;
         private TGCVector3 posicionInicial;
         private TGCVector3 rotacionInicial;
         private const float VELOCIDAD_LINEAL_MAX = 100;
@@ -33,10 +34,11 @@ namespace TGC.Group.Model
             private set => turbo = Math.Min(value, 100);
         }
 
+
         public Jugador(String nombre, TgcMesh mesh, List<Rueda> ruedas, TGCVector3 translation=new TGCVector3(), TGCVector3 rotation=new TGCVector3(), float angle=0) :base(mesh,translation,rotation,angle)
         {
+            this.controles = controles;
             this.nombre = nombre;
-            inputAvanzar = Key.UpArrow;
 
             this.translation.Y += 10;
 
@@ -79,29 +81,29 @@ namespace TGC.Group.Model
             nuevaVel = (nuevaVel.Dot(Frente) / Frente.LengthSquared) * Frente;
             nuevaVel.Y = velocidadLineal.Y;
             cuerpo.LinearVelocity = nuevaVel;
-            if (input.keyDown(inputAvanzar))
+            if (input.keyDown(controles.teclaAvanzar))
             {
                 cuerpo.ApplyCentralForce(Frente * 50);
             }
-            if (input.keyDown(Key.DownArrow))
+            if (input.keyDown(controles.teclaRetroceder))
             {
                 cuerpo.ApplyCentralForce(Frente * -50);
             }
             if (velocidadLineal.Length > 1)
             {
                 Vector3 rotacion = Vector3.Transform(new Vector3(1, 0, 0), rotation) * Math.Min(5000f / (velocidadLineal.Length * .2f), 1000f) * Math.Sign(velocidadLineal.Dot(Frente));
-                if (input.keyDown(Key.RightArrow))
+                if (input.keyDown(controles.teclaDerecha))
                 {
                     cuerpo.ApplyForce(rotacion, Frente * -5);
                     cuerpo.ApplyForce(-rotacion, Frente * 5);
                 }
-                if (input.keyDown(Key.LeftArrow))
+                if (input.keyDown(controles.teclaIzquierda))
                 {
                     cuerpo.ApplyForce(rotacion, Frente * 5);
                     cuerpo.ApplyForce(-rotacion, Frente * -5);
                 }
             }
-            if (input.keyDown(Key.Space))
+            if (input.keyDown(controles.teclaSalto))
             {
                 cuerpo.ApplyCentralForce(new Vector3(0, 1000, 0));
             }
@@ -113,22 +115,22 @@ namespace TGC.Group.Model
             
             Vector3 fuerzaPitch = Vector3.Transform(new Vector3(0, 1, 0), rotation) * 50;
             Vector3 fuerzaYaw = Vector3.Transform(new Vector3(1, 0, 0), rotation) * 50;
-            if (input.keyDown(inputAvanzar))
+            if (input.keyDown(controles.teclaAvanzar))
             {
                 cuerpo.ApplyForce(fuerzaPitch, Vector3.Transform(new Vector3(0, 0, 5), rotation));
                 cuerpo.ApplyForce(-fuerzaPitch, Vector3.Transform(new Vector3(0, 0, -5), rotation));
             }
-            if (input.keyDown(Key.DownArrow))
+            if (input.keyDown(controles.teclaRetroceder))
             {
                 cuerpo.ApplyForce(fuerzaPitch, Vector3.Transform(new Vector3(0, 0, -5), rotation));
                 cuerpo.ApplyForce(-fuerzaPitch, Vector3.Transform(new Vector3(0, 0, 5), rotation));
             }
-            if (input.keyDown(Key.RightArrow))
+            if (input.keyDown(controles.teclaDerecha))
             {
                 cuerpo.ApplyForce(fuerzaYaw, Vector3.Transform(new Vector3(0, 0, 5), rotation));
                 cuerpo.ApplyForce(-fuerzaYaw, Vector3.Transform(new Vector3(0, 0, -5), rotation));
             }
-            if (input.keyDown(Key.LeftArrow))
+            if (input.keyDown(controles.teclaIzquierda))
             {
                 cuerpo.ApplyForce(fuerzaYaw, Vector3.Transform(new Vector3(0, 0, -5), rotation));
                 cuerpo.ApplyForce(-fuerzaYaw, Vector3.Transform(new Vector3(0, 0, 5), rotation));
@@ -137,7 +139,7 @@ namespace TGC.Group.Model
 
         private void HandleInputTurbo(TgcD3dInput input)
         {
-            if (input.keyDown(Key.LeftControl) && Turbo > 0)
+            if (input.keyDown(controles.teclaTurbo) && Turbo > 0)
             {
                 cuerpo.ApplyCentralForce(Vector3.Transform(new Vector3(0, 0, -50), rotation));
                 Turbo--;

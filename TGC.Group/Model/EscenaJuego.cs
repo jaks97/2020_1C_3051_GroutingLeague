@@ -31,7 +31,9 @@ namespace TGC.Group.Model
         //Objetos de juego
         private List<Jugador> jugadores = new List<Jugador>();
         private Jugador jugadorActivo;
+        private Jugador jugadorDos;
         private CamaraJugador camara;
+        private CamaraJugador camaraDos;
         private Pelota pelota;
         private List<Turbo> turbos;
         private Paredes paredes;
@@ -57,10 +59,12 @@ namespace TGC.Group.Model
         private TgcScreenQuad screenQuad;
         private Microsoft.DirectX.Direct3D.Effect effect;
         private CubeTexture g_pCubeMap; // Cubemap para Env Shader
-        int frameNumber; // Numero de frame
+        private int frameNumber; // Numero de frame
         private TgcMp3Player mp3Gol;
+        private bool PantallaDividida => jugadorDos != null;
+        private Texture renderTargetBloom;
 
-        public EscenaJuego(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input, List<Jugador> jugadores, Jugador jugadorActivo, bool dia = true) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
+        public EscenaJuego(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input, List<Jugador> jugadores, Jugador jugadorActivo, Jugador segundoJugador = null, bool dia = true) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
         {
             this.dia = dia;
             screenQuad = new TgcScreenQuad();
@@ -71,6 +75,7 @@ namespace TGC.Group.Model
 
             this.jugadores = jugadores;
             this.jugadorActivo = jugadorActivo;
+            this.jugadorDos = segundoJugador;
             initJugadores();
 
             sol = new Luz(Color.White, new TGCVector3(0, 70, -130));
@@ -95,6 +100,8 @@ namespace TGC.Group.Model
             dynamicsWorld.AddRigidBody(arcos[1].Cuerpo);
 
             camara = new CamaraJugador(jugadorActivo, pelota, Camera, paredes.Mesh.createBoundingBox());
+            if (PantallaDividida)
+                camaraDos = new CamaraJugador(segundoJugador, pelota, Camera, paredes.Mesh.createBoundingBox());
 
             ui = new UIEscenaJuego();
             ui.Init(MediaDir,drawer2D);
@@ -111,6 +118,9 @@ namespace TGC.Group.Model
             effect.SetValue("screenHeight", D3DDevice.Instance.Device.PresentationParameters.BackBufferHeight);
 
             g_pCubeMap = new CubeTexture(D3DDevice.Instance.Device, 64, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+            //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
+            renderTargetBloom = new Texture(D3DDevice.Instance.Device, D3DDevice.Instance.Device.PresentationParameters.BackBufferWidth,
+                D3DDevice.Instance.Device.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
         }
 
         private void initFisica()
@@ -230,10 +240,12 @@ namespace TGC.Group.Model
 
             pasto.Update(ElapsedTime);
 
-            camara.Update(ElapsedTime);
+            camara.Update();
             pelota.Update(ElapsedTime);
 
             jugadorActivo.HandleInput(Input);
+            if (PantallaDividida)
+                jugadorDos.HandleInput(Input);
             if (Input.keyDown(Key.Escape))
             {
                 return CambiarEscena(new EscenaMenu(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
@@ -310,53 +322,6 @@ namespace TGC.Group.Model
             // asi que re-genero la matriz de proyeccion
             D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(90.0f), 1f, 1f, 10000f).ToMatrix();
 
-            /*// Genero las caras del enviroment map
-            for (var nFace = framePar ? CubeMapFace.PositiveX : CubeMapFace.NegativeX; nFace <= CubeMapFace.NegativeZ; nFace += 2)
-            {
-                var pFace = g_pCubeMap.GetCubeMapSurface(nFace, 0);
-                D3DDevice.Instance.Device.SetRenderTarget(0, pFace);
-                TGCVector3 Dir, VUP;
-                switch (nFace)
-                {
-                    default:
-                    case CubeMapFace.PositiveX:
-                        Dir = new TGCVector3(1, 0, 0);
-                        VUP = TGCVector3.Up;
-                        break;
-                    case CubeMapFace.NegativeX:
-                        Dir = new TGCVector3(-1, 0, 0);
-                        VUP = TGCVector3.Up;
-                        break;
-                    case CubeMapFace.PositiveY:
-                        Dir = TGCVector3.Up;
-                        VUP = new TGCVector3(0, 0, -1);
-                        break;
-                    case CubeMapFace.NegativeY:
-                        Dir = TGCVector3.Down;
-                        VUP = new TGCVector3(0, 0, 1);
-                        break;
-                    case CubeMapFace.PositiveZ:
-                        Dir = new TGCVector3(0, 0, 1);
-                        VUP = TGCVector3.Up;
-                        break;
-                    case CubeMapFace.NegativeZ:
-                        Dir = new TGCVector3(0, 0, -1);
-                        VUP = TGCVector3.Up;
-                        break;
-                }
-
-                //como queremos usar la camara rotacional pero siguendo a un objetivo comentamos el seteo del view.
-                D3DDevice.Instance.Device.Transform.View = TGCMatrix.LookAtLH(worldPos, Dir, VUP);
-
-                D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-                D3DDevice.Instance.Device.BeginScene();
-
-                //Renderizar
-                renderScene(true);
-
-                D3DDevice.Instance.Device.EndScene();
-            }*/
-
             // En vez de renderizar todas las caras en todos los frames (Como en el codigo comentado de arriba), renderizo una cara por cada frame
             var nFace = (CubeMapFace)(frameNumber % 6);
             var pFace = g_pCubeMap.GetCubeMapSurface(nFace, 0);
@@ -410,21 +375,9 @@ namespace TGC.Group.Model
                 pelota.Render(sol);
         }
 
-        public override void Render()
+        public Texture RenderUno()
         {
             var d3dDevice = D3DDevice.Instance.Device;
-
-            var pOldRT = d3dDevice.GetRenderTarget(0);
-            renderCubemap(jugadorActivo.Translation); // Solo hago un cubemap del jugador activo y lo uso en los demas por performance
-            foreach (var jugador in jugadores)
-            {
-                //var g_pCubeMap = cubemap(jugador.Translation);
-                jugador.Mesh.Effect.SetValue("g_txCubeMap", g_pCubeMap);
-                //g_pCubeMap.Dispose();
-            }
-            //g_pCubeMap.Dispose();
-
-
             //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
             var renderTarget2D = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
                 d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
@@ -437,7 +390,7 @@ namespace TGC.Group.Model
             // Restauro el estado de las transformaciones
             d3dDevice.Transform.View = Camera.GetViewMatrix().ToMatrix();
             d3dDevice.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
-            
+
             // dibujo pp dicho
             d3dDevice.BeginScene();
             d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
@@ -452,9 +405,6 @@ namespace TGC.Group.Model
 
             // Renderizamos lo que va a tener bloom
 
-            //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
-            var renderTargetBloom = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
-                d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
 
             //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
             //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
@@ -474,6 +424,34 @@ namespace TGC.Group.Model
             //Liberar memoria de surface de Render Target
             pSurf.Dispose();
 
+            return renderTarget2D;
+        }
+
+        public void RenderDos()
+        {
+            camaraDos.Update();
+            RenderUno();
+        }
+
+        public override void Render()
+        {
+            var d3dDevice = D3DDevice.Instance.Device;
+
+            var pOldRT = d3dDevice.GetRenderTarget(0);
+            renderCubemap(jugadorActivo.Translation); // Solo hago un cubemap del jugador activo y lo uso en los demas por performance
+            foreach (var jugador in jugadores)
+            {
+                //var g_pCubeMap = cubemap(jugador.Translation);
+                jugador.Mesh.Effect.SetValue("g_txCubeMap", g_pCubeMap);
+                //g_pCubeMap.Dispose();
+            }
+            //g_pCubeMap.Dispose();
+
+            var renderTargetUno = RenderUno();
+            if (PantallaDividida)
+            {
+                var rennderTargetDos = RenderDos();
+            }|
 
             //Ahora volvemos a restaurar el Render Target original (osea dibujar a la pantalla)
             d3dDevice.SetRenderTarget(0, pOldRT);
@@ -482,7 +460,7 @@ namespace TGC.Group.Model
             d3dDevice.BeginScene();
 
             //Cargamos parametros en el shader de Post-Procesado
-            effect.SetValue("texDiffuseMap", renderTarget2D);
+            effect.SetValue("texDiffuseMap", renderTargetUno);
             effect.SetValue("texBloom", renderTargetBloom);
             effect.SetValue("activo", Input.keyDown(Key.B)); // Para debugear nomas
 
