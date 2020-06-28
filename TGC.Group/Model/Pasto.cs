@@ -10,7 +10,7 @@ namespace TGC.Group.Model
     class Pasto : ObjetoJuego
     {
         private float altura;
-        private List<TgcMesh> capas;
+        public List<TgcMesh> capas;
         private float time;
 
         public Pasto(TgcMesh mesh, Effect effect, int capasCount, float altura) : base(mesh, default, default, default)

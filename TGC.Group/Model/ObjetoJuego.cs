@@ -41,9 +41,6 @@ namespace TGC.Group.Model
             this.rotation = new BulletSharp.Math.Quaternion(new BulletSharp.Math.Vector3(rotation.X,rotation.Y,rotation.Z), angle);
 
             AABB = new TgcBoundingAxisAlignBox();
-
-            //mesh.Effect = TGCShaders.Instance.LoadEffect(@"C:\Users\jakss\Documents\TGC\2020_1C_3051_GroutingLeague\TGC.Group\Shaders\CustomShaders.fx");
-            //mesh.Technique = "SOL";
         }
 
         public virtual void Update(float elapsedTime)
@@ -72,10 +69,10 @@ namespace TGC.Group.Model
             Mesh.Transform = new TGCMatrix(cuerpo.WorldTransform);
             Mesh.Render();
 
-            Mesh.BoundingBox.transform(Mesh.Transform);
-            Mesh.BoundingBox.Render();
+            //Mesh.BoundingBox.transform(Mesh.Transform);
+            //Mesh.BoundingBox.Render();
 
-            RenderRigidBodyBoundingBox();
+            //RenderRigidBodyBoundingBox();
         }
         public virtual void Render(Luz luz)
         {

@@ -40,8 +40,8 @@ namespace TGC.Group.Model
         {
             base.Render(luz);
 
-            AABBGol.setRenderColor(Color.Red);
-            AABBGol.Render();
+            //AABBGol.setRenderColor(Color.Red);
+            //AABBGol.Render();
         }
 
     }

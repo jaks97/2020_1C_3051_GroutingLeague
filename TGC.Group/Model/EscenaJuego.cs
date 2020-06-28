@@ -386,30 +386,32 @@ namespace TGC.Group.Model
         // Metodo que renderiza objetos luminosos para el bloom
         private void renderLuminoso()
         {
+            foreach (var turbo in turbos)
+                if (turbo.Activo)
+                    turbo.Render(sol);
+
             if (animacionGol.Activo)
-            {
-
-                foreach (var jugador in jugadores)
-                {
-                    if (jugador.Translation != Camera.Position)
-                    {
-
-                        jugador.Mesh.Effect.SetValue("eyePosition", TGCVector3.TGCVector3ToFloat3Array(Camera.Position));
-                        jugador.Mesh.Technique = "Negro";
-                        jugador.ruedas[0].Mesh.Technique = "Negro";
-                        jugador.Render(sol);
-                        jugador.Mesh.Technique = "BlinnPhong";
-                        jugador.ruedas[0].Mesh.Technique = "BlinnPhong";
-                    }
-                }
-
-                arcos[0].Mesh.Technique = "Negro";
-                arcos[0].Render(sol);
-                arcos[1].Render(sol);
-                arcos[0].Mesh.Technique = "BlinnPhong";
-
                 pelota.Render(sol);
+
+            foreach (var jugador in jugadores)
+            {
+                if (jugador.Translation != Camera.Position)
+                {
+                    jugador.Mesh.Technique = "Negro";
+                    jugador.ruedas[0].Mesh.Technique = "Negro";
+                    jugador.Render(sol);
+                    jugador.Mesh.Technique = "BlinnPhong";
+                    jugador.ruedas[0].Mesh.Technique = "BlinnPhong";
+                }
             }
+
+            arcos[0].Mesh.Technique = "Negro";
+            arcos[0].Render(sol);
+            arcos[1].Render(sol);
+            arcos[0].Mesh.Technique = "BlinnPhong";
+
+            pasto.capas.First().Technique = "Negro";
+            pasto.Render(true);
         }
 
         // Renderiza todo incluido el postprocess en el Texture pasado

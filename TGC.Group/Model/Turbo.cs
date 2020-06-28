@@ -17,6 +17,12 @@ namespace TGC.Group.Model
 
             cuerpo = BulletRigidBodyFactory.Instance.CreateCylinder(mesh.BoundingBox.calculateSize() * 0.5f, translation, 0);
             cuerpo.CollisionFlags = BulletSharp.CollisionFlags.NoContactResponse | BulletSharp.CollisionFlags.StaticObject;
+
+            Ka = 0.7f;
+            Kd = 0;
+            Ks = 0f;
+            shininess = 100;
+            reflection = 0;
         }
 
         public void Reiniciar()
@@ -36,7 +42,10 @@ namespace TGC.Group.Model
         public override void Render()
         {
             if (Activo) // Si no esta activo, no renderizamos. TODO: Estaria bueno tener un shader que lo oscurezca o algo asi
-                base.Render();
+                Ka = 0.7f;
+            else
+                Ka = 0.2f;
+            base.Render();
         }
 
         public int Usar()

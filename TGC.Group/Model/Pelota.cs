@@ -37,10 +37,10 @@ namespace TGC.Group.Model
             Mesh.Transform = TGCMatrix.Scaling(scaleFactor, scaleFactor, scaleFactor) * new TGCMatrix(cuerpo.InterpolationWorldTransform);
             Mesh.Render();
 
-            Mesh.BoundingBox.transform(Mesh.Transform);
-            Mesh.BoundingBox.Render();
+            //Mesh.BoundingBox.transform(Mesh.Transform);
+            //Mesh.BoundingBox.Render();
 
-            RenderRigidBodyBoundingBox();
+            //RenderRigidBodyBoundingBox();
         }
         public void ReiniciarPelota()
         {
