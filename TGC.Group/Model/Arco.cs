@@ -27,12 +27,18 @@ namespace TGC.Group.Model
             UpdateAABB();
             AABBGol = new TgcBoundingAxisAlignBox(AABB.PMin + new TGCVector3(10,10,10), AABB.PMax - new TGCVector3(10, 10, 10));
             AABBGol.transform(Mesh.Transform);
+
+            Ka = 0.4f;
+            Kd = 0.55f;
+            Ks = 0.05f;
+            shininess = 0;
+            reflection = 0;
         }
         public override bool CheckCollideWith(ObjetoJuego objeto) => TgcCollisionUtils.testAABBAABB(this.AABBGol, objeto.AABB);
 
-        public override void Render()
+        public override void Render(Luz luz)
         {
-            base.Render();
+            base.Render(luz);
 
             AABBGol.setRenderColor(Color.Red);
             AABBGol.Render();

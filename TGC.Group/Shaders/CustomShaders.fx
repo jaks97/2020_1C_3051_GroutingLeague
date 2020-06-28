@@ -408,7 +408,7 @@ float4 PSPostProcess(VS_OUTPUT_POSTPROCESS input) : COLOR0
     
     float4 bloom = blurearTextura(bloomSampler, input.TextureCoordinates);
     
-    return !activo ? (bloom + tex) : tex;
+    return !activo ? bloom + tex : tex;
 }
 
 technique PostProcess
@@ -471,4 +471,22 @@ technique SplitScreen
         VertexShader = compile vs_3_0 VSSplitScreen();
         PixelShader = compile ps_3_0 PSSplitScreen();
     }
+}
+
+/**************************************************************************************/
+/* Negro (Shader que pinta todo de negro)*/
+/**************************************************************************************/
+
+float4 ps_Negro(PS_BLINN input): COLOR0
+{
+	return float4(0.0f,0.0f,0.0f,1.0f);
+}
+
+technique Negro
+{
+	pass Pass_0
+	{
+		VertexShader = compile vs_3_0 vs_BlinnPhong();
+		PixelShader = compile ps_3_0 ps_Negro();
+	}
 }

@@ -63,6 +63,7 @@ namespace TGC.Group.Model
         private TgcMp3Player mp3Gol;
         private bool PantallaDividida => jugadorDos != null;
         private Texture renderTargetBloom;
+        private Surface depthStencil;
 
         public EscenaJuego(TgcCamera Camera, string MediaDir, string ShadersDir, TgcText2D DrawText, float TimeBetweenUpdates, TgcD3dInput Input, List<Jugador> jugadores, Jugador jugadorActivo, Jugador segundoJugador = null, bool dia = true) : base(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input)
         {
@@ -79,12 +80,11 @@ namespace TGC.Group.Model
             initJugadores();
 
             sol = new Luz(Color.White, new TGCVector3(0, 70, -130));
-
+            
             mp3Gol = new TgcMp3Player();
             mp3Gol.FileName = MediaDir + "Music\\Gol.mp3";
+
             pelota = new Pelota(escena.getMeshByName("Pelota"), new TGCVector3(0f, 50f, -250f));
-            pelota.Mesh.Effect = TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx");
-            pelota.Mesh.Technique = "BlinnPhong";
             pelota.Mesh.Effect.SetValue("texPerlin", TextureLoader.FromFile(D3DDevice.Instance.Device, MediaDir + "Textures\\PerlinNoise.png"));
             dynamicsWorld.AddRigidBody(pelota.Cuerpo);
 
@@ -121,6 +121,8 @@ namespace TGC.Group.Model
             //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
             renderTargetBloom = new Texture(D3DDevice.Instance.Device, D3DDevice.Instance.Device.PresentationParameters.BackBufferWidth,
                 D3DDevice.Instance.Device.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+            depthStencil = D3DDevice.Instance.Device.CreateDepthStencilSurface(D3DDevice.Instance.Device.PresentationParameters.BackBufferWidth,
+                 D3DDevice.Instance.Device.PresentationParameters.BackBufferHeight, DepthFormat.D24S8, MultiSampleType.None, 0, true);
         }
 
         private void initFisica()
@@ -163,10 +165,12 @@ namespace TGC.Group.Model
             skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "lostatseaday_ft.jpg");
             skyBox.Init();
 
+            Microsoft.DirectX.Direct3D.Effect customShaders = TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx");
+
             //cargar escena
             escena = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Cancha-TgcScene.xml");
 
-            pasto = new Pasto(escena.Meshes[0], TGCShaders.Instance.LoadEffect(ShadersDir + "CustomShaders.fx"), 32, .5f);
+            pasto = new Pasto(escena.Meshes[0], customShaders.Clone(D3DDevice.Instance.Device), 32, .5f);
 
             TgcMesh meshTurbo = escena.getMeshByName("Turbo");
 
@@ -188,6 +192,11 @@ namespace TGC.Group.Model
                 new Turbo(meshTurbo, new TGCVector3(220, -.2f, -300), 100)
             };
 
+            foreach (TgcMesh mesh in escena.Meshes)
+            {
+                mesh.Effect = customShaders.Clone(D3DDevice.Instance.Device);
+                mesh.Technique = "BlinnPhong";
+            }
         }
 
         private void initJugadores()
@@ -291,6 +300,7 @@ namespace TGC.Group.Model
         
         private void renderScene(bool cubemap = false)
         {
+
             skyBox.Render();
 
             if(!cubemap)
@@ -310,15 +320,15 @@ namespace TGC.Group.Model
                 }
             }
 
-            arcos[0].Render();
-            arcos[1].Render();
+            arcos[0].Render(sol);
+            arcos[1].Render(sol);
 
             foreach (var turbo in turbos)
             {
-                turbo.Render();
+                turbo.Render(sol);
             }
 
-            paredes.Render();
+            paredes.Render(sol);
         }
 
         private void renderCubemap(TGCVector3 worldPos)
@@ -376,20 +386,42 @@ namespace TGC.Group.Model
         // Metodo que renderiza objetos luminosos para el bloom
         private void renderLuminoso()
         {
-            if(animacionGol.Activo)
+            if (animacionGol.Activo)
+            {
+
+                foreach (var jugador in jugadores)
+                {
+                    if (jugador.Translation != Camera.Position)
+                    {
+
+                        jugador.Mesh.Effect.SetValue("eyePosition", TGCVector3.TGCVector3ToFloat3Array(Camera.Position));
+                        jugador.Mesh.Technique = "Negro";
+                        jugador.ruedas[0].Mesh.Technique = "Negro";
+                        jugador.Render(sol);
+                        jugador.Mesh.Technique = "BlinnPhong";
+                        jugador.ruedas[0].Mesh.Technique = "BlinnPhong";
+                    }
+                }
+
+                arcos[0].Mesh.Technique = "Negro";
+                arcos[0].Render(sol);
+                arcos[1].Render(sol);
+                arcos[0].Mesh.Technique = "BlinnPhong";
+
                 pelota.Render(sol);
+            }
         }
 
         // Renderiza todo incluido el postprocess en el Texture pasado
         public Texture RenderCompleto(Texture renderTarget2D)
         {
             var d3dDevice = D3DDevice.Instance.Device;
-            //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
 
             //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
             //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
             var pSurf = renderTarget2D.GetSurfaceLevel(0);
             d3dDevice.SetRenderTarget(0, pSurf);
+            d3dDevice.DepthStencilSurface = depthStencil;
             var rectangle = renderTarget2D.Device.ScissorRectangle;
 
             // Restauro el estado de las transformaciones
@@ -414,6 +446,7 @@ namespace TGC.Group.Model
             //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
             pSurf = renderTargetBloom.GetSurfaceLevel(0);
             d3dDevice.SetRenderTarget(0, pSurf);
+            d3dDevice.DepthStencilSurface = depthStencil;
 
             // dibujo pp dicho
             d3dDevice.BeginScene();
@@ -427,7 +460,6 @@ namespace TGC.Group.Model
             return renderTarget2D;
         }
 
-
         public void PostProcess(Texture render)
         {
             var d3dDevice = D3DDevice.Instance.Device;
@@ -440,6 +472,7 @@ namespace TGC.Group.Model
             effect.SetValue("texBloom", renderTargetBloom);
             effect.SetValue("activo", Input.keyDown(Key.B)); // Para debugear nomas
 
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
             screenQuad.render(effect);
         }
 
@@ -456,6 +489,7 @@ namespace TGC.Group.Model
                 //g_pCubeMap.Dispose();
             }
             //g_pCubeMap.Dispose();
+            var oDS = d3dDevice.DepthStencilSurface;
             if (PantallaDividida)
             {
                 var renderTargetUno = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth / 2,
@@ -465,6 +499,7 @@ namespace TGC.Group.Model
                     d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
                 var pSurf = renderTargetPP1.GetSurfaceLevel(0);
                 d3dDevice.SetRenderTarget(0, pSurf);
+                d3dDevice.DepthStencilSurface = depthStencil;
                 PostProcess(renderTargetUno);
                 d3dDevice.EndScene();
                 pSurf.Dispose();
@@ -478,11 +513,13 @@ namespace TGC.Group.Model
                    d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
                 pSurf = renderTargetPP2.GetSurfaceLevel(0);
                 d3dDevice.SetRenderTarget(0, pSurf);
+                d3dDevice.DepthStencilSurface = depthStencil;
                 PostProcess(renderTargetDos);
                 d3dDevice.EndScene();
                 pSurf.Dispose();
 
                 d3dDevice.SetRenderTarget(0, pOldRT);
+                d3dDevice.DepthStencilSurface = oDS;
                 //Arrancamos la escena
                 d3dDevice.BeginScene();
                 d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
@@ -503,6 +540,7 @@ namespace TGC.Group.Model
                 RenderCompleto(renderTargetUno);
                 //Ahora volvemos a restaurar el Render Target original (osea dibujar a la pantalla)
                 d3dDevice.SetRenderTarget(0, pOldRT);
+                d3dDevice.DepthStencilSurface = oDS;
                 PostProcess(renderTargetUno);
 
                 DrawText.drawText("posicion del jugador: " + jugadorActivo.Translation.ToString(), 0, 20, Color.Red);
