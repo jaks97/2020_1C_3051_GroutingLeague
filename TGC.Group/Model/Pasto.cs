@@ -1,6 +1,7 @@
 ﻿using Microsoft.DirectX.Direct3D;
 using System.Collections.Generic;
 using System.Linq;
+using TGC.Core.Direct3D;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 
@@ -18,12 +19,12 @@ namespace TGC.Group.Model
             capas = new List<TgcMesh>();
             for (int i = 0; i < capasCount; i++)
             {
-                TgcMesh pasto = mesh.clone("Pasto");
-                pasto = mesh.createMeshInstance("Pasto" + i);
+                TgcMesh pasto = mesh.createMeshInstance("Pasto" + i);
                 pasto.Position += TGCVector3.Up * (i * altura / capasCount);
                 pasto.Transform = TGCMatrix.Scaling(pasto.Scale) * TGCMatrix.RotationYawPitchRoll(pasto.Rotation.Y, pasto.Rotation.X, pasto.Rotation.Z) * TGCMatrix.Translation(pasto.Position);
-                pasto.Effect = effect;
+                pasto.Effect = effect.Clone(D3DDevice.Instance.Device);
                 pasto.Technique = "Pasto";
+                pasto.Effect.SetValue("nivel", (float)i / capasCount);
                 capas.Add(pasto);
             }
         }
@@ -35,14 +36,13 @@ namespace TGC.Group.Model
 
         public void Render(bool lod = false)
         {
-            capas.First().Effect.SetValue("time", time);
             if (lod)
                 capas.First().Render();
             else
             {
                 foreach (var capa in capas)
                 {
-                    capa.Effect.SetValue("nivel", capa.Position.Y / altura);
+                    capa.Effect.SetValue("time", time);
                     capa.Render();
                 }
             }
