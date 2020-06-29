@@ -256,13 +256,13 @@ namespace TGC.Group.Model
                         break;
                     case Items.DOSJUGADORES:
                         {
-                            var jugadorUno = jugadores[jugadorActivo];
+                            var jugadorUno = jugadores[JugadorActivo];
                             jugadorUno.controles = new Controles(Key.UpArrow, Key.DownArrow, Key.LeftArrow, Key.RightArrow, Key.Space, Key.RightControl);
-                            var jugadorDos = jugadores[++jugadorActivo];
+                            ++JugadorActivo;
+                            var jugadorDos = jugadores[JugadorActivo];
                             jugadorDos.controles = new Controles(Key.W, Key.S, Key.A, Key.D, Key.LeftShift, Key.LeftControl);
                             mp3Player.closeFile();
                             return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadorUno, jugadorDos, dia));
-                            break;
                         }
                 }
 
