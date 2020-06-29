@@ -401,13 +401,13 @@ namespace TGC.Group.Model
             var d3dDevice = D3DDevice.Instance.Device;
             
             var pOldRT = d3dDevice.GetRenderTarget(0);
-            /*renderCubemap(jugadorActivo.Translation); // Solo hago un cubemap del jugador activo y lo uso en los demas por performance
+            renderCubemap(jugadorActivo.Translation); // Solo hago un cubemap del jugador activo y lo uso en los demas por performance
             foreach (var jugador in jugadores)
             {
                 //var g_pCubeMap = cubemap(jugador.Translation);
                 jugador.Mesh.Effect.SetValue("g_txCubeMap", g_pCubeMap);
                 //g_pCubeMap.Dispose();
-            }*/
+            }
             //g_pCubeMap.Dispose();
 
             var oDS = d3dDevice.DepthStencilSurface;
@@ -415,33 +415,14 @@ namespace TGC.Group.Model
             // Restauro el estado de las transformaciones
             d3dDevice.Transform.View = Camera.GetViewMatrix().ToMatrix();
             d3dDevice.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
-
-            //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
-            var renderTargetBloom = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
-                d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
-
-            //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
-            //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
-            var pSurf = renderTargetBloom.GetSurfaceLevel(0);
-            d3dDevice.SetRenderTarget(0, pSurf);
-            d3dDevice.DepthStencilSurface = depthStencil;
-
-            // dibujo pp dicho
-            d3dDevice.BeginScene();
-            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-            renderLuminoso();
-            d3dDevice.EndScene();
-
-            //Liberar memoria de surface de Render Target
-            pSurf.Dispose();
-            
+           
             //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
             var renderTarget2D = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
                 d3dDevice.PresentationParameters.BackBufferHeight, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
             
             //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
             //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
-             pSurf = renderTarget2D.GetSurfaceLevel(0);
+            var pSurf = renderTarget2D.GetSurfaceLevel(0);
             d3dDevice.SetRenderTarget(0, pSurf);
 
             // Restauro el estado de las transformaciones
@@ -462,6 +443,24 @@ namespace TGC.Group.Model
 
             // Renderizamos lo que va a tener bloom
 
+            //Creamos un Render Targer sobre el cual se va a dibujar la pantalla
+            var renderTargetBloom = new Texture(d3dDevice, d3dDevice.PresentationParameters.BackBufferWidth,
+                d3dDevice.PresentationParameters.BackBufferHeight, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+
+            //Cargamos el Render Targer al cual se va a dibujar la escena 3D. Antes nos guardamos el surface original
+            //En vez de dibujar a la pantalla, dibujamos a un buffer auxiliar, nuestro Render Target.
+            pSurf = renderTargetBloom.GetSurfaceLevel(0);
+            d3dDevice.SetRenderTarget(0, pSurf);
+            d3dDevice.DepthStencilSurface = depthStencil;
+
+            // dibujo pp dicho
+            d3dDevice.BeginScene();
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+            renderLuminoso();
+            d3dDevice.EndScene();
+
+            //Liberar memoria de surface de Render Target
+            pSurf.Dispose();
 
 
             //Ahora volvemos a restaurar el Render Target original (osea dibujar a la pantalla)
@@ -472,7 +471,7 @@ namespace TGC.Group.Model
             d3dDevice.BeginScene();
 
             //Cargamos parametros en el shader de Post-Procesado
-            //effect.SetValue("texDiffuseMap", renderTarget2D);
+            effect.SetValue("texDiffuseMap", renderTarget2D);
             effect.SetValue("texBloom", renderTargetBloom);
             effect.SetValue("activo", Input.keyDown(Key.B)); // Para debugear nomas
 
