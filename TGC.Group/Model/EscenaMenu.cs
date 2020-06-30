@@ -80,7 +80,6 @@ namespace TGC.Group.Model
             INICIAR,
             CONTROLES,
             CAMBIARVEHICULO,
-            HORA,
             DOSJUGADORES,
             SALIR
         }
@@ -136,9 +135,8 @@ namespace TGC.Group.Model
             botones.Add(new Boton(menuItem, menuItemSelec, "Iniciar", 0, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "Controles", 1, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "< Cambiar vehículo >", 2, drawer2D));
-            botones.Add(new Boton(menuItem, menuItemSelec, "Dia", 3, drawer2D));
-            botones.Add(new Boton(menuItem, menuItemSelec, "Modo pantalla dividida", 4, drawer2D));
-            botones.Add(new Boton(menuItem, menuItemSelec, "Salir", 5, drawer2D));
+            botones.Add(new Boton(menuItem, menuItemSelec, "Modo pantalla dividida", 3, drawer2D));
+            botones.Add(new Boton(menuItem, menuItemSelec, "Salir", 4, drawer2D));
 
             initSkyBox();
 
@@ -245,7 +243,7 @@ namespace TGC.Group.Model
                 {
                     case Items.INICIAR:
                         mp3Player.closeFile();
-                        jugadores[jugadorActivo].controles = new Controles(Key.UpArrow, Key.DownArrow, Key.LeftArrow, Key.RightArrow, Key.Space, Key.RightControl);
+                        jugadores[jugadorActivo].controles = new Controles(Key.UpArrow, Key.DownArrow, Key.LeftArrow, Key.RightArrow, Key.Space, Key.LeftControl);
                         return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadores[jugadorActivo], null, dia));
                     case Items.CONTROLES:
                         mp3Player.closeFile();
@@ -260,7 +258,7 @@ namespace TGC.Group.Model
                             jugadorUno.controles = new Controles(Key.UpArrow, Key.DownArrow, Key.LeftArrow, Key.RightArrow, Key.Space, Key.RightControl);
                             ++JugadorActivo;
                             var jugadorDos = jugadores[JugadorActivo];
-                            jugadorDos.controles = new Controles(Key.W, Key.S, Key.A, Key.D, Key.LeftShift, Key.LeftControl);
+                            jugadorDos.controles = new Controles(Key.W, Key.S, Key.A, Key.D, Key.LeftShift, Key.LeftAlt);
                             mp3Player.closeFile();
                             return CambiarEscena(new EscenaJuego(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input, jugadores, jugadorUno, jugadorDos, dia));
                         }
@@ -280,13 +278,6 @@ namespace TGC.Group.Model
                         JugadorActivo--;
                         tiempoMovido = 0.2f;
                     }
-                }
-                else if ((Items)botonSeleccionado == Items.HORA && (Input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT) || Input.keyDown(Key.Return)))
-                {
-                    dia = !dia;
-                    botones[3].texto.Texto = dia ? "Dia" : "Noche";
-                    initSkyBox();
-                    tiempoMovido = 0.2f;
                 }
                 if (Input.keyDown(Key.UpArrow))
                 {
