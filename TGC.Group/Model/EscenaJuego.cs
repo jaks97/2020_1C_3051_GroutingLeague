@@ -84,7 +84,7 @@ namespace TGC.Group.Model
             mp3Gol = new TgcMp3Player();
             mp3Gol.FileName = MediaDir + "Music\\Gol.mp3";
 
-            pelota = new Pelota(escena.getMeshByName("Pelota"), new TGCVector3(0f, 50f, -250f));
+            pelota = new Pelota(escena.getMeshByName("Pelota"), new TGCVector3(0f, 50f, 0));
             pelota.Mesh.Effect.SetValue("texPerlin", TextureLoader.FromFile(D3DDevice.Instance.Device, MediaDir + "Textures\\PerlinNoise.png"));
             dynamicsWorld.AddRigidBody(pelota.Cuerpo);
 
