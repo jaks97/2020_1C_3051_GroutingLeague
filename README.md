@@ -16,7 +16,7 @@ Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técn
 ## Integrantes ##
 Khalil Silva, Javier | Bebchuk, Sacha | Lassaga, Andrea Fabiana 
 ---------------| ---------------| ---------------
-<img src="https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Javier.jpg" height="300"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="300"> | <img src="https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Andrea.jpg" height="300">
+<img src="https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Javier.jpg" height="300"> | <img src="https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Sacha.jpg" height="300"> | <img src="https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Andrea.jpg" height="300">
 
 ## ScreenShot ##
 ![Menú](https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Menu.PNG)
