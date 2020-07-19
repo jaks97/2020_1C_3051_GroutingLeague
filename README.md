@@ -14,14 +14,14 @@ Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técn
 * [TGC.Core](https://www.nuget.org/packages/TGC.Core/) (se baja automáticamente al hacer build por primera vez)
 
 ## Integrantes ##
-Khalil, Javier | Bebchuk, Sacha | Lassaga, Andrea Fabiana
----------------| ---------------| -----------------------
-<img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="500">
+Khalil Silva, Javier | Bebchuk, Sacha | Lassaga, Andrea Fabiana 
+---------------| ---------------| ---------------
+<img src="https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Javier.jpg" height="300"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="300"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="300">
 
 ## ScreenShot ##
-![screenshot1](https://github.com/sachaBebchuk/2020_1C_3051_GroutingLeague/TGC.Group/Media/Textures/ImagenInicio.jpg)
-![screenshot2](https://github.com/sachaBebchuk/2020_1C_3051_GroutingLeague/TGC.Group/Media/Textures/ImagenCompetencia.jpg)
-![screenshot3](https://github.com/sachaBebchuk/2020_1C_3051_GroutingLeague/TGC.Group/Media/Textures/ImagenGol.jpg)
+![Menú](https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Menu.PNG)
+![Gol](https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Gol.png)
+![SplitScreen](https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/SplitScreen.PNG)
 
 
 ## Game Play ##
