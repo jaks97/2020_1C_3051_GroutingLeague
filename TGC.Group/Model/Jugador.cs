@@ -8,6 +8,7 @@ using TGC.Core.BulletPhysics;
 using TGC.Core.Input;
 using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
+using TGC.Core.Sound;
 
 namespace TGC.Group.Model
 {
@@ -21,6 +22,7 @@ namespace TGC.Group.Model
         private const float VELOCIDAD_LINEAL_MAX = 100;
         private const float VELOCIDAD_ANGULAR_MAX = 5;
         public List<Rueda> ruedas;
+        public bool Acelerando = false;
 
         private Boolean EnElAire => translation.Y - (AABB.calculateSize().Y / 2f) > .1f;
 
@@ -37,7 +39,6 @@ namespace TGC.Group.Model
 
         public Jugador(String nombre, TgcMesh mesh, List<Rueda> ruedas, TGCVector3 translation=new TGCVector3(), TGCVector3 rotation=new TGCVector3(), float angle=0) :base(mesh,translation,rotation,angle)
         {
-            this.controles = controles;
             this.nombre = nombre;
 
             this.translation.Y += 10;
@@ -83,6 +84,7 @@ namespace TGC.Group.Model
             cuerpo.LinearVelocity = nuevaVel;
             if (input.keyDown(controles.teclaAvanzar))
             {
+                Acelerando = true;
                 cuerpo.ApplyCentralForce(Frente * 50);
             }
             if (input.keyDown(controles.teclaRetroceder))
@@ -148,6 +150,7 @@ namespace TGC.Group.Model
 
         public void HandleInput(TgcD3dInput input)
         {
+            Acelerando = false;
             if (EnElAire || Math.Abs(Frente.Y) > .2f || Normal.Dot(Vector3.UnitY) < 0.9f)
                 HandleInputAire(input);
             else
