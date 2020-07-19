@@ -132,10 +132,10 @@ namespace TGC.Group.Model
             CustomBitmap menuItem = new CustomBitmap(MediaDir + "\\Textures\\HUD\\menuItem.png", D3DDevice.Instance.Device);
             CustomBitmap menuItemSelec = new CustomBitmap(MediaDir + "\\Textures\\HUD\\menuItemSelec.png", D3DDevice.Instance.Device);
 
-            botones.Add(new Boton(menuItem, menuItemSelec, "Iniciar", 0, drawer2D));
+            botones.Add(new Boton(menuItem, menuItemSelec, "Entrenamiento", 0, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "Controles", 1, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "< Cambiar vehículo >", 2, drawer2D));
-            botones.Add(new Boton(menuItem, menuItemSelec, "Modo pantalla dividida", 3, drawer2D));
+            botones.Add(new Boton(menuItem, menuItemSelec, "Competencia", 3, drawer2D));
             botones.Add(new Boton(menuItem, menuItemSelec, "Salir", 4, drawer2D));
 
             initSkyBox();
