@@ -227,6 +227,7 @@ namespace TGC.Group.Model
 
             if (tiempoRestante <= 0)
             {
+                mp3Gol.closeFile();
                 return CambiarEscena(new EscenaGameOver(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
             }
 
@@ -257,6 +258,7 @@ namespace TGC.Group.Model
                 jugadorDos.HandleInput(Input);
             if (Input.keyDown(Key.Escape))
             {
+                mp3Gol.closeFile();
                 return CambiarEscena(new EscenaMenu(Camera, MediaDir, ShadersDir, DrawText, TimeBetweenUpdates, Input));
             }
 
@@ -283,14 +285,14 @@ namespace TGC.Group.Model
                 if (arcos[0].CheckCollideWith(pelota))
                 {
                     golequipo1++;
-                    mp3Gol.play(true);
+                    mp3Gol.play(false);
                     animacionGol.AnimarGol(jugadores, Color.Blue);
                 }
 
                 if (arcos[1].CheckCollideWith(pelota))
                 {
                     golequipo2++;
-                    mp3Gol.play(true);
+                    mp3Gol.play(false);
                     animacionGol.AnimarGol(jugadores, Color.Red);
                 }
             }
