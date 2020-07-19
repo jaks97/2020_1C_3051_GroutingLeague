@@ -544,11 +544,8 @@ namespace TGC.Group.Model
                 d3dDevice.SetRenderTarget(0, pOldRT);
                 d3dDevice.DepthStencilSurface = oDS;
                 PostProcess(renderTargetUno);
-
-                DrawText.drawText("posicion del jugador: " + jugadorActivo.Translation.ToString(), 0, 20, Color.Red);
             }
             ui.Render(PantallaDividida);
-            sol.Render();
             pOldRT.Dispose();
 
         }
@@ -568,6 +565,8 @@ namespace TGC.Group.Model
             {
                 turbo.Dispose();
             }
+
+            mp3Gol.closeFile();
         }
     }
 }
