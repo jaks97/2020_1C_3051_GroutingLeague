@@ -25,4 +25,4 @@ Khalil Silva, Javier | Bebchuk, Sacha | Lassaga, Andrea Fabiana
 
 
 ## Game Play ##
-[![Watch the video](https://lh6.googleusercontent.com/UtLVBtRP_KXNLMrYh1JekbkUXDEA1DGHJwex6X08Qq-k-Yb_s-E6GLQbvxn5veliVLUk4W7ofttfYA=r)](https://drive.google.com/file/d/1xRycaP5GMxgME6SsYXkMgGB4h3wrMO6R/view?usp=sharing)
+[![Watch the video](https://raw.githubusercontent.com/sachaBebchuk/2020_1C_3051_GroutingLeague/master/Screenshots/Menu.PNG)](https://drive.google.com/file/d/1xRycaP5GMxgME6SsYXkMgGB4h3wrMO6R/view?usp=sharing)
